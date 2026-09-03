@@ -1,0 +1,172 @@
+[
+  {
+    "receivedAt": "2026-09-02T06:22:02.228Z",
+    "payload": {
+      "statuses": [
+        {
+          "id": "wamid.HBgMOTE4NjU1MTgwMzQwFQIAERgSOTVGMzc3QkEyQzQxNURDQkQ3AA==",
+          "status": "failed",
+          "timestamp": "1788330121",
+          "recipient_id": "918655180340",
+          "recipient_user_id": "IN.1636567928035008",
+          "errors": [
+            {
+              "code": 131049,
+              "title": "This message was not delivered to maintain healthy ecosystem engagement.",
+              "message": "This message was not delivered to maintain healthy ecosystem engagement.",
+              "error_data": {
+                "details": "In order to maintain a healthy ecosystem engagement, the message failed to be delivered."
+              }
+            }
+          ],
+          "custom_callback_data": "automation_digilabs_enteron_birthday_automation"
+        }
+      ],
+      "businessPhoneNumber": "+919867042713",
+      "id": "e68fe13d-9c63-41e5-a786-a1f505ef701d"
+    }
+  },
+  {
+    "receivedAt": "2026-09-02T06:22:02.242Z",
+    "payload": {
+      "statuses": [
+        {
+          "id": "wamid.HBgMOTE5MTMxMTkzNDY3FQIAERgSN0RBQzdDNEVFNEUyMDE3RDYyAA==",
+          "status": "failed",
+          "timestamp": "1788330121",
+          "recipient_id": "919131193467",
+          "recipient_user_id": "IN.1800484731356469",
+          "errors": [
+            {
+              "code": 131049,
+              "title": "This message was not delivered to maintain healthy ecosystem engagement.",
+              "message": "This message was not delivered to maintain healthy ecosystem engagement.",
+              "error_data": {
+                "details": "In order to maintain a healthy ecosystem engagement, the message failed to be delivered."
+              }
+            }
+          ],
+          "custom_callback_data": "automation_digilabs_enteron_birthday_automation"
+        }
+      ],
+      "businessPhoneNumber": "+919867042713",
+      "id": "32f08d10-4e86-4e8e-9a63-dd116c8402b0"
+    }
+  },
+  {
+    "receivedAt": "2026-09-02T06:22:02.267Z",
+    "payload": {
+      "statuses": [
+        {
+          "id": "wamid.HBgMOTE4MDgwMzAyMDQxFQIAERgSMUZGRTE2MkI5NDc1NkYwRTc1AA==",
+          "status": "failed",
+          "timestamp": "1788330120",
+          "recipient_id": "918080302041",
+          "recipient_user_id": "IN.1800484868023122",
+          "errors": [
+            {
+              "code": 131049,
+              "title": "This message was not delivered to maintain healthy ecosystem engagement.",
+              "message": "This message was not delivered to maintain healthy ecosystem engagement.",
+              "error_data": {
+                "details": "In order to maintain a healthy ecosystem engagement, the message failed to be delivered."
+              }
+            }
+          ],
+          "custom_callback_data": "automation_digilabs_enteron_birthday_automation"
+        }
+      ],
+      "businessPhoneNumber": "+919867042713",
+      "id": "801a9dc5-1b5f-4b34-995d-def9dab3ec1b"
+    }
+  },
+  {
+    "receivedAt": "2026-09-02T06:22:02.500Z",
+    "payload": {
+      "statuses": [
+        {
+          "id": "wamid.HBgMOTE5MDI4MjY4MDQ4FQIAERgSNzU4NDJBMTA4MzMzMUQ3MzMyAA==",
+          "status": "sent",
+          "timestamp": "1788330121",
+          "recipient_id": "919028268048",
+          "recipient_user_id": "IN.1800485068023102",
+          "conversation": {
+            "id": "8b38f40b88a145811c529e652dec0cf7",
+            "expiration_timestamp": "1788330121",
+            "origin": {
+              "type": "marketing_lite"
+            }
+          },
+          "pricing": {
+            "billable": true,
+            "pricing_model": "PMP",
+            "category": "marketing_lite",
+            "type": "regular"
+          },
+          "custom_callback_data": "automation_digilabs_enteron_birthday_automation"
+        }
+      ],
+      "businessPhoneNumber": "+919867042713",
+      "id": "14e21f60-5469-48d5-87bd-ff4194ba3731"
+    }
+  },
+  {
+    "receivedAt": "2026-09-02T06:22:03.075Z",
+    "payload": {
+      "statuses": [
+        {
+          "id": "wamid.HBgMOTE3NjY2Njc3Mzk5FQIAERgSQzNERDNFQzFBOEYwOTZBRDIzAA==",
+          "status": "sent",
+          "timestamp": "1788330121",
+          "recipient_id": "917666677399",
+          "recipient_user_id": "IN.1800484808023128",
+          "conversation": {
+            "id": "2166a1407e07adccc152299ac34b1d0b",
+            "expiration_timestamp": "1788330121",
+            "origin": {
+              "type": "marketing_lite"
+            }
+          },
+          "pricing": {
+            "billable": true,
+            "pricing_model": "PMP",
+            "category": "marketing_lite",
+            "type": "regular"
+          },
+          "custom_callback_data": "automation_digilabs_enteron_birthday_automation"
+        }
+      ],
+      "businessPhoneNumber": "+919867042713",
+      "id": "0f9a8e99-bd82-433a-a74e-9b5ff5d990fe"
+    }
+  },
+  {
+    "receivedAt": "2026-09-02T06:22:03.955Z",
+    "payload": {
+      "statuses": [
+        {
+          "id": "wamid.HBgMOTE3NjY2Njc3Mzk5FQIAERgSQzNERDNFQzFBOEYwOTZBRDIzAA==",
+          "status": "delivered",
+          "timestamp": "1788330122",
+          "recipient_id": "917666677399",
+          "recipient_user_id": "IN.1800484808023128",
+          "conversation": {
+            "id": "2166a1407e07adccc152299ac34b1d0b",
+            "origin": {
+              "type": "marketing_lite"
+            }
+          },
+          "pricing": {
+            "billable": true,
+            "pricing_model": "PMP",
+            "category": "marketing_lite",
+            "type": "regular"
+          },
+          "custom_callback_data": "automation_digilabs_enteron_birthday_automation"
+        }
+      ],
+      "businessPhoneNumber": "+919867042713",
+      "id": "0f9a8e99-bd82-433a-a74e-9b5ff5d990fe"
+    }
+  }
+]

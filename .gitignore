@@ -1,0 +1,310 @@
+# ==============================================================================
+# Comprehensive .gitignore
+# Ignores: .sql, .conf, node_modules, .env, and all common junk
+# Tracks: everything else
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# SQL and config files
+# ------------------------------------------------------------------------------
+*.sql
+*.sql.bak
+*.sql.gz
+*.sql.zip
+*.sql.xz
+*.conf
+*.conf.bak
+*.conf.local
+*.conf.dist
+*.conf.*
+*.cnf
+*.cnf.local
+*.ini
+*.config.js
+*.config.cjs
+*.config.ts
+*.config.json
+
+# ------------------------------------------------------------------------------
+# Node.js
+# ------------------------------------------------------------------------------
+node_modules/
+node_modules.lock
+npm-debug.log*
+npm-error.log*
+yarn-debug.log*
+yarn-error.log*
+yarn-log-*
+pnpm-debug.log*
+package-lock.json
+yarn-lock.yaml
+pnpm-lock.yaml
+yarn-packages/
+npm-shrinkwrap.lock
+.npm/
+.node-gyp/
+.pnpm/
+
+# ------------------------------------------------------------------------------
+# Environment Variables
+# ------------------------------------------------------------------------------
+.env
+.env.local
+.env.*.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+.env.staging
+.env.staging.local
+.envrc
+.ads/.env
+*.secret
+*.pem
+*.key
+
+# ------------------------------------------------------------------------------
+# Build Outputs
+# ------------------------------------------------------------------------------
+dist/
+dist-ssr/
+dist-client/
+build/
+.out/
+output/
+.next/
+.nuxt/
+.vuepress/
+.server/
+.functions/
+.vercel/
+.netlify/
+.parcel-cache/
+*.js.bundle
+*.js.br
+*.js.gz
+*.mjs.map
+*.cjs.map
+
+# ------------------------------------------------------------------------------
+# Testing & Coverage
+# ------------------------------------------------------------------------------
+coverage/
+.nyc_output/
+.coverage/
+.junit.xml
+*.test-result
+*.tap
+.nycrc
+.nycrc.json
+nyc.config.js
+vitest.config.ts.timestamp-*
+.eslintcache
+.cypress/
+.cypress-cache/
+test-results/
+playwright-report/
+playwright/.cache/
+
+# ------------------------------------------------------------------------------
+# Runtime & OS
+# ------------------------------------------------------------------------------
+*.log
+logs/
+*.log.*
+*.err
+*.out
+nohup.out
+*.pid
+*.lock
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.VolumeIcon.icns
+.EthnicCD
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+ehthumbs.db
+ehthumbs_vista.db
+
+# Linux
+*~
+.tmp/
+temp/
+.directory
+
+# ------------------------------------------------------------------------------
+# IDE & Editor
+# ------------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+.tmproj
+*.esproj
+*.code-workspace
+.history/
+.session
+.sessions/
+.tags
+.tags.swp
+.gtags
+GPATH
+GRTAGS
+GTAGS
+*.gld
+*.ndb
+*.ilo
+*.ldb
+*.sdf
+*.opensdf
+*.pdb
+*.pch
+*.user
+*.userosscache
+*.suo
+*.flt
+*.ibc
+*.idc
+*.sln.docstates
+*.vssscc
+*.vcccaches
+*.vsp
+*.vcxproj*
+*.ipch
+*.opendb
+.VC.db
+.VC.VC.opendb
+*.ncb
+*.ilk
+*.exe
+*.exe~
+*.obj
+*.dll
+*.lib
+*.so
+*.so.*
+*.dylib
+*.a
+*.o
+*.out
+*.app
+*.ipa
+*.app/
+
+# JetBrains / IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+*.lo
+*.la
+.libs/
+.stale/
+
+# Vim
+*.un~
+*.swo
+swap/
+
+# Nano
+*.swp
+
+# Emacs
+*~
+\#*\#
+.\#*
+*.elc
+*.pyc
+__pycache__/
+.pyo
+.Python*
+*.egg-info/
+.eggs/
+.installed.cfg
+*.egg
+
+# Visual Studio
+*.csproj.user
+*.rdisloy
+*.psd1
+*. Shell
+*.vspscc
+*.vssscc
+.vs/
+*.vcxuser
+*_i.c
+*_p.c
+
+# ------------------------------------------------------------------------------
+# Database (besides .sql which is above)
+# ------------------------------------------------------------------------------
+*.db
+*.sqlite
+*.sqlite3
+*.dbf
+*.mdb
+*.sdf
+*.bak
+
+# ------------------------------------------------------------------------------
+# Archives
+# ------------------------------------------------------------------------------
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.dmg
+*.iso
+*.war
+*.jar
+*.class
+*.pyc
+*.pyo
+
+# ------------------------------------------------------------------------------
+# Temporary & Cache
+# ------------------------------------------------------------------------------
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*.cache
+.cache/
+.yarn/
+.yarn-cache/
+bower_components/
+jspm_packages/
+.typings/
+Downloads/
+Desktop/
+
+# ------------------------------------------------------------------------------
+# OS generated files
+# ------------------------------------------------------------------------------
+Thumbs.db
+.DS_Store
+desktop.ini
+
+api.js
