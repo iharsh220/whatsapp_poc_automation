@@ -26,6 +26,23 @@ const MessageLog = sequelize.define('MessageLog', {
 }, {
   tableName: 'message_logs',
   timestamps: true,
+  // Prevent Sequelize from auto-altering table on sync
+  // Run message_logs.sql manually to add missing columns
 });
+
+// Gracefully handle missing columns by checking on first use
+MessageLog.safeCreate = async function(data) {
+  try {
+    return await MessageLog.create(data);
+  } catch (err) {
+    if (err.message && (err.message.includes('retry_count') || err.message.includes('doctor_clinic_name'))) {
+      const safe = { ...data };
+      delete safe.retry_count;
+      delete safe.doctor_clinic_name;
+      return await MessageLog.create(safe);
+    }
+    throw err;
+  }
+};
 
 module.exports = MessageLog;

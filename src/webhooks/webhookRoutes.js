@@ -12,7 +12,7 @@ router.post('/status_callback', async (req, res) => {
 
       const firstError = s.errors?.[0] || {};
 
-      await MessageLog.create({
+      await MessageLog.safeCreate({
         message_id: s.id,
         doctor_id: meta.doctorId || null,
         doctor_name: meta.doctorName || null,
