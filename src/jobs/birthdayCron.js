@@ -29,7 +29,7 @@ async function checkAndQueueMessages() {
   const month = String(now.getMonth() + 1).padStart(2, '0');
   const day = String(now.getDate()).padStart(2, '0');
 
-  const doctors = await Doctor.findAll();
+  const doctors = await Doctor.findAll({ where: { is_active: true } });
 
   for (const doctor of doctors) {
     for (const job of JOBS) {
