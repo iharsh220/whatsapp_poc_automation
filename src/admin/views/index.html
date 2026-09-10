@@ -107,8 +107,8 @@
         </div>
       </div>
 
-      <div class="kpi-row">
-        <div class="kpi"><div class="kpi-top"><div class="kpi-icon total"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg></div><span class="kpi-pct neutral">All</span></div><div class="kpi-val" id="kTotal">—</div><div class="kpi-lbl">Total Messages</div><div class="kpi-bar total"></div></div>
+      <div class="kpi-row four">
+
         <div class="kpi"><div class="kpi-top"><div class="kpi-icon sent"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div><span class="kpi-pct up" id="pSent">—</span></div><div class="kpi-val" id="kSent">—</div><div class="kpi-lbl">Sent</div><div class="kpi-bar sent"></div></div>
         <div class="kpi"><div class="kpi-top"><div class="kpi-icon delivered"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span class="kpi-pct up" id="pDelivered">—</span></div><div class="kpi-val" id="kDelivered">—</div><div class="kpi-lbl">Delivered</div><div class="kpi-bar delivered"></div></div>
         <div class="kpi"><div class="kpi-top"><div class="kpi-icon read"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><span class="kpi-pct up" id="pRead">—</span></div><div class="kpi-val" id="kRead">—</div><div class="kpi-lbl">Read</div><div class="kpi-bar read"></div></div>
@@ -226,6 +226,11 @@
             <option value="inactive">Inactive</option>
           </select>
           <input type="text" id="uSearch" class="inline-input" placeholder="Search doctor..." oninput="onUserFilterChange()"/>
+          <button class="btn btn-xls" id="btnUploadUsers" onclick="document.getElementById('userUpload').click()">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Upload Users
+          </button>
+          <input type="file" id="userUpload" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleUserUpload(this)"/>
           <button class="btn btn-primary" onclick="openModal(null)">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Add Doctor
@@ -252,6 +257,29 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- UPLOAD PROGRESS MODAL -->
+<div class="modal-overlay" id="uploadModalOverlay">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="uploadModalTitle">Uploading Users</span>
+      <button class="modal-close" onclick="closeUploadModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="upload-stats">
+        <div class="upload-stat"><div class="upload-stat-val" id="upTotal">0</div><div class="upload-stat-lbl">Total Rows</div></div>
+        <div class="upload-stat"><div class="upload-stat-val" id="upProcessed">0</div><div class="upload-stat-lbl">Processed</div></div>
+        <div class="upload-stat"><div class="upload-stat-val" id="upAdded">0</div><div class="upload-stat-lbl">Added</div></div>
+        <div class="upload-stat"><div class="upload-stat-val" id="upSkipped">0</div><div class="upload-stat-lbl">Skipped</div></div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="upProgressFill" style="width:0%"></div></div>
+        <div class="progress-pct" id="upProgressPct">0%</div>
+      </div>
+      <div class="upload-status" id="uploadStatus">Processing...</div>
+    </div>
   </div>
 </div>
 

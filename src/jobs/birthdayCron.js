@@ -60,15 +60,15 @@ async function checkAndQueueMessages() {
 }
 
 async function startCron() {
-  // cron.schedule('0 9 * * *', async () => {
-  //   console.log('Running daily cron...');
-  //   try {
-  //     await checkAndQueueMessages();
-  //   } catch (err) {
-  //     console.error('Cron error:', err.message);
-  //   }
-  // });
-  await checkAndQueueMessages();
+  cron.schedule('0 9 * * *', async () => {
+    console.log('Running daily cron...');
+    try {
+      await checkAndQueueMessages();
+    } catch (err) {
+      console.error('Cron error:', err.message);
+    }
+  });
+  // await checkAndQueueMessages();
   console.log('Cron scheduled: daily at 9:00 AM');
 }
 

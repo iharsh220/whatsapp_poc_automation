@@ -134,3 +134,13 @@ td.dim { color: var(--text-3); }
 .inline-select { padding: 8px 12px; border: 1.5px solid var(--border-2); border-radius: 8px; font-size: 13px; color: var(--text); background: var(--white); cursor: pointer; }
 .inline-input { padding: 8px 12px; border: 1.5px solid var(--border-2); border-radius: 8px; font-size: 13px; color: var(--text); background: var(--white); width: 180px; }
 .inline-input:focus, .inline-select:focus { outline: none; border-color: var(--primary); }
+
+.upload-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+.upload-stat { text-align: center; padding: 12px; background: var(--bg); border-radius: 10px; }
+.upload-stat-val { font-size: 22px; font-weight: 800; color: var(--primary); }
+.upload-stat-lbl { font-size: 11px; color: var(--text-3); margin-top: 4px; font-weight: 600; text-transform: uppercase; }
+.progress-wrap { display: flex; align-items: center; gap: 10px; }
+.progress-bar { flex: 1; height: 10px; background: var(--bg); border-radius: 20px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #4F46E5, #7C3AED); width: 0%; transition: width 0.2s; }
+.progress-pct { font-size: 13px; font-weight: 700; color: var(--text-2); min-width: 40px; text-align: right; }
+.upload-status { margin-top: 12px; font-size: 13px; color: var(--text-3); text-align: center; }

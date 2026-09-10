@@ -1,6 +1,7 @@
 let uCurPage = 1;
 let uDebounce = null;
 let editingId = null;
+let uploadAbort = null;
 
 function populateYears() {
   const sel = document.getElementById('uYearFilter');
@@ -15,6 +16,93 @@ function populateYears() {
 function onUserFilterChange() {
   clearTimeout(uDebounce);
   uDebounce = setTimeout(() => { loadUserStats(); loadUsers(1); }, 350);
+}
+
+function showUploadModal() {
+  document.getElementById('uploadModalOverlay').classList.add('open');
+  setText('uploadModalTitle', 'Uploading Users');
+  setText('upTotal', '0');
+  setText('upProcessed', '0');
+  setText('upAdded', '0');
+  setText('upSkipped', '0');
+  setText('upProgressPct', '0%');
+  document.getElementById('upProgressFill').style.width = '0%';
+  setText('uploadStatus', 'Starting...');
+}
+
+function closeUploadModal() {
+  document.getElementById('uploadModalOverlay').classList.remove('open');
+  if (uploadAbort) { uploadAbort.abort(); uploadAbort = null; }
+}
+
+async function handleUserUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = '';
+
+  showUploadModal();
+  uploadAbort = new AbortController();
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const response = await fetch(`${BASE}/doctors/upload-stream`, {
+      method: 'POST',
+      headers: { 'x-admin-token': getToken() },
+      body: formData,
+      signal: uploadAbort.signal,
+    });
+
+    if (response.status === 401) { doLogout(); return; }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || !trimmed.startsWith('data: ')) continue;
+        const payload = trimmed.slice(6);
+        if (payload === '[DONE]') continue;
+
+        try {
+          const data = JSON.parse(payload);
+          if (data.error) {
+            setText('uploadStatus', 'Error: ' + data.error);
+            return;
+          }
+          setText('upTotal', data.total);
+          setText('upProcessed', data.processed);
+          setText('upAdded', data.added);
+          setText('upSkipped', data.skipped);
+          setText('upProgressPct', data.progress + '%');
+          document.getElementById('upProgressFill').style.width = data.progress + '%';
+          if (data.done) {
+            setText('uploadStatus', 'Completed');
+            setTimeout(() => {
+              closeUploadModal();
+              loadUserStats();
+              loadUsers(uCurPage);
+            }, 1200);
+          } else {
+            setText('uploadStatus', 'Processing...');
+          }
+        } catch (e) { console.error(e); }
+      }
+    }
+  } catch (e) {
+    setText('uploadStatus', 'Upload failed');
+    console.error(e);
+  }
 }
 
 async function loadUserStats() {

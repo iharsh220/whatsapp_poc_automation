@@ -110,7 +110,7 @@ body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color
 .btn-out:hover { color: var(--danger); }
 .btn-out svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
 
-.main { margin-left: var(--sidebar); padding: 28px 32px; min-height: 100vh; }
+.main { margin-left: var(--sidebar); padding: 28px 16px; min-height: 100vh; }
 .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
 .page-title { font-size: 20px; font-weight: 700; }
 .page-sub { font-size: 13px; color: var(--text-3); margin-top: 2px; }

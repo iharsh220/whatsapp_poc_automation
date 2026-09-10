@@ -4,6 +4,10 @@ const path = require('path');
 const { Op } = require('sequelize');
 const MessageLog = require('../models/MessageLog');
 const Doctor = require('../models/Doctor');
+const multer = require('multer');
+const XLSX = require('xlsx');
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 const ADMIN_USER = 'admin';
 const ADMIN_PASS = 'Digi@2026';
@@ -240,6 +244,77 @@ router.patch('/doctors/:id/toggle', auth, async (req, res) => {
     res.json({ id: doc.id, is_active: doc.is_active });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// Bulk upload users via CSV/Excel with streaming progress
+router.post('/doctors/upload-stream', auth, upload.single('file'), async (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  try {
+    if (!req.file) {
+      res.write(`data: ${JSON.stringify({ error: 'No file uploaded' })}\n\n`);
+      return res.end();
+    }
+
+    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+    const totalRows = rows.length;
+    let processed = 0;
+    let added = 0;
+    let skipped = 0;
+    const chunkSize = 1000;
+
+    for (let i = 0; i < totalRows; i += chunkSize) {
+      const chunk = rows.slice(i, i + chunkSize);
+
+      for (const row of chunk) {
+        const name = String(row.name || '').trim();
+        const phone = String(row.phone || '').trim();
+        if (!name || !phone) { skipped++; continue; }
+
+        const exists = await Doctor.findOne({ where: { phone } });
+        if (exists) { skipped++; continue; }
+
+        const clinic_name = row.clinic_name ? String(row.clinic_name).trim() : null;
+        const birthday = row.birthday || null;
+        const anniversary = row.anniversary || null;
+        const clinic_anniversary = row.clinic_anniversary || null;
+        let is_active = true;
+        if (row.is_active !== undefined && row.is_active !== '') {
+          const val = String(row.is_active).toLowerCase();
+          is_active = val === 'true' || val === '1' || val === 'yes';
+        }
+
+        await Doctor.create({
+          name,
+          phone,
+          clinic_name,
+          birthday,
+          anniversary,
+          clinic_anniversary,
+          is_active,
+        });
+        added++;
+      }
+
+      processed += chunk.length;
+      const progress = totalRows > 0 ? Math.round((processed / totalRows) * 100) : 0;
+
+      res.write(`data: ${JSON.stringify({ total: totalRows, processed, added, skipped, progress })}\n\n`);
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+
+    res.write(`data: ${JSON.stringify({ total: totalRows, processed, added, skipped, progress: 100, done: true })}\n\n`);
+    res.end();
+  } catch (err) {
+    res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+    res.end();
   }
 });
 
