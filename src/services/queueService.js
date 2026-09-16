@@ -4,34 +4,64 @@ const QUEUE_KEY = 'whatsapp:message:queue';
 const RETRY_QUEUE_KEY = 'whatsapp:message:retry';
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 3 * 60 * 60 * 1000; // 3 hours
+const BLPOP_TIMEOUT = 10;
+
+// ── Main Queue ── (FIFO list)
 
 async function pushToQueue(messageData) {
   await redis.rpush(QUEUE_KEY, JSON.stringify({ ...messageData, retryCount: 0 }));
 }
 
 async function popFromQueue() {
-  const data = await redis.lpop(QUEUE_KEY);
-  return data ? JSON.parse(data) : null;
+  const data = await redis.blpop(QUEUE_KEY, BLPOP_TIMEOUT);
+  if (!data) return null;
+  const [, payload] = data;
+  try { return JSON.parse(payload); } catch { return null; }
 }
 
-// Retry queue uses sorted set - score = timestamp when to retry
+// ── Retry Queue ── (sorted set keyed by retry timestamp)
+
+// Atomic pop — prevents race conditions when multiple workers run
+const POP_RETRIES_LUA = `
+  local items = redis.call('ZRANGEBYSCORE', KEYS[1], 0, ARGV[1], 'LIMIT', 0, ARGV[2])
+  if #items == 0 then return {} end
+  redis.call('ZREM', KEYS[1], unpack(items))
+  return items
+`;
+
+async function popDueRetries(batchSize = 10) {
+  const now = Date.now();
+  const items = await redis.eval(POP_RETRIES_LUA, 1, RETRY_QUEUE_KEY, now, batchSize);
+  if (!items || !items.length) return [];
+  return items.map(i => JSON.parse(i));
+}
+
 async function pushToRetryQueue(messageData) {
   const retryAt = Date.now() + RETRY_DELAY_MS;
-  await redis.zadd(RETRY_QUEUE_KEY, retryAt, JSON.stringify(messageData));
-}
-
-// Pop messages from retry queue that are due
-async function popDueRetries() {
-  const now = Date.now();
-  const items = await redis.zrangebyscore(RETRY_QUEUE_KEY, 0, now, 'LIMIT', 0, 10);
-  if (!items.length) return [];
-
-  await redis.zremrangebyscore(RETRY_QUEUE_KEY, 0, now);
-  return items.map((i) => JSON.parse(i));
+  const member = JSON.stringify(messageData);
+  // NX prevents re-queuing the exact same message (idempotent retry)
+  await redis.zadd(RETRY_QUEUE_KEY, 'NX', retryAt, member);
 }
 
 async function getQueueLength() {
-  return redis.llen(QUEUE_KEY);
+  const [main, retry] = await Promise.all([
+    redis.llen(QUEUE_KEY),
+    redis.zcard(RETRY_QUEUE_KEY),
+  ]);
+  return { main, retry };
 }
 
-module.exports = { pushToQueue, popFromQueue, pushToRetryQueue, popDueRetries, getQueueLength, MAX_RETRIES };
+async function clearQueues() {
+  await redis.del(QUEUE_KEY, RETRY_QUEUE_KEY);
+}
+
+module.exports = {
+  pushToQueue,
+  popFromQueue,
+  popDueRetries,
+  pushToRetryQueue,
+  getQueueLength,
+  clearQueues,
+  MAX_RETRIES,
+  RETRY_DELAY_MS,
+};

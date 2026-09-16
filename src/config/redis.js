@@ -1,45 +1,21 @@
 require('dotenv').config();
-// const Redis = require('ioredis');
-
-// const redis = new Redis({
-//   host: process.env.REDIS_HOST,
-//   port: process.env.REDIS_PORT || 6379,
-//   password: process.env.REDIS_PASSWORD || undefined,
-// });
-
-// redis.on('connect', () => console.log('Redis connected'));
-// redis.on('error', (err) => console.error('Redis error:', err));
-
-// module.exports = redis;
-
 
 const Redis = require('ioredis');
 
-const redisClient = new Redis({
+const redis = new Redis({
   host: process.env.REDIS_HOST || 'localhost',
-  port: process.env.REDIS_PORT || 6379,
+  port: parseInt(process.env.REDIS_PORT) || 6379,
   password: process.env.REDIS_PASSWORD || undefined,
   retryStrategy: (times) => {
-    if (times > 3) {
-      console.error('Redis connection failed after 3 retries');
+    if (times > 10) {
+      console.error('Redis connection failed after 10 retries');
       return null;
     }
     return Math.min(times * 200, 2000);
   },
-  maxRetriesPerRequest: 3,
-  enableReadyCheck: true,
+  maxRetriesPerRequest: null,
 });
 
-redisClient.on('connect', () => {
-  console.log('Redis client connected successfully');
-});
+redis.on('error', (err) => console.error('Redis error:', err.message));
 
-redisClient.on('error', (err) => {
-  console.error('Redis client error:', err);
-});
-
-redisClient.on('ready', () => {
-  console.log('Redis client is ready');
-});
-
-module.exports = redisClient;
+module.exports = redis;
