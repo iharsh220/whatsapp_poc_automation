@@ -159,6 +159,9 @@ function renderUserRows(rows) {
   const canModify = isSuperAdmin();
   tbody.innerHTML = rows.map(r => {
     const actions = canModify ? `
+      <button class="btn btn-sm ${r.is_admin ? 'btn-primary' : ''}" onclick="toggleAdmin(${r.id}, this)" style="min-width:70px" title="${r.is_admin ? 'Remove admin' : 'Make admin'}">
+        ${r.is_admin ? 'Admin' : 'Set Admin'}
+      </button>
       <button class="btn btn-sm btn-xls" onclick='openModal(${JSON.stringify(r)})'>
         <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Edit
@@ -202,6 +205,25 @@ async function toggleStatus(id, btn) {
   } catch (e) { console.error(e); }
 }
 
+async function toggleAdmin(id, btn) {
+  try {
+    const isAdmin = btn.textContent.trim() === 'Admin';
+    const r = await fetch(`${BASE}/doctors/${id}/admin`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'x-admin-token': getToken() },
+      body: JSON.stringify({ is_admin: !isAdmin }),
+    });
+    if (r.status === 401) { doLogout(); return; }
+    const d = await r.json();
+    if (r.ok) {
+      btn.classList.toggle('btn-primary', d.is_admin);
+      btn.textContent = d.is_admin ? 'Admin' : 'Set Admin';
+      btn.title = d.is_admin ? 'Remove admin' : 'Make admin';
+      loadUserStats();
+    }
+  } catch (e) { console.error(e); }
+}
+
 async function deleteDoctor(id) {
   if (!confirm('Delete this doctor? This cannot be undone.')) return;
   try {
@@ -222,6 +244,8 @@ function openModal(doc) {
   document.getElementById('mClinicAnniv').value = doc ? (doc.clinic_anniversary || '') : '';
   document.getElementById('mDivision').value = doc ? (doc.division || '') : '';
   document.getElementById('mIsDoctor').checked = doc ? (doc.is_doctor !== 0 && doc.is_doctor !== false) : true;
+  document.getElementById('mPassword').value = doc ? (doc.password || '') : '';
+  document.getElementById('mIsAdmin').checked = doc ? (doc.is_admin !== 0 && doc.is_admin !== false) : false;
   document.getElementById('modalOverlay').classList.add('open');
 }
 
@@ -240,6 +264,8 @@ async function saveDoctor() {
     clinic_anniversary: document.getElementById('mClinicAnniv').value || null,
     division: document.getElementById('mDivision').value.trim() || null,
     is_doctor: document.getElementById('mIsDoctor').checked ? 1 : 0,
+    is_admin: document.getElementById('mIsAdmin').checked ? 1 : 0,
+    password: document.getElementById('mPassword').value.trim() || null,
   };
   if (!body.name || !body.phone) { alert('Name and phone are required'); return; }
   try {

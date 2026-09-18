@@ -261,9 +261,9 @@ router.get('/doctors', auth, async (req, res) => {
 // Create doctor
 router.post('/doctors', auth, requireSuperAdmin, async (req, res) => {
   try {
-    const { name, phone, clinic_name, birthday, anniversary, clinic_anniversary, is_doctor, division } = req.body;
+    const { name, phone, clinic_name, birthday, anniversary, clinic_anniversary, is_doctor, is_admin, division, password } = req.body;
     if (!name || !phone) return res.status(400).json({ error: 'Name and phone are required' });
-    const doc = await Doctor.create({ name, phone, clinic_name, birthday: birthday||null, anniversary: anniversary||null, clinic_anniversary: clinic_anniversary||null, is_doctor: is_doctor !== undefined ? is_doctor : true, division: division || null });
+    const doc = await Doctor.create({ name, phone, clinic_name, birthday: birthday||null, anniversary: anniversary||null, clinic_anniversary: clinic_anniversary||null, is_doctor: is_doctor !== undefined ? is_doctor : true, is_admin: is_admin !== undefined ? is_admin : false, division: division || null, password: password || 'Digi@2026' });
     res.json(doc);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -275,8 +275,8 @@ router.put('/doctors/:id', auth, requireSuperAdmin, async (req, res) => {
   try {
     const doc = await Doctor.findByPk(req.params.id);
     if (!doc) return res.status(404).json({ error: 'Not found' });
-    const { name, phone, clinic_name, birthday, anniversary, clinic_anniversary, is_doctor, division } = req.body;
-    await doc.update({ name, phone, clinic_name, birthday: birthday||null, anniversary: anniversary||null, clinic_anniversary: clinic_anniversary||null, is_doctor: is_doctor !== undefined ? is_doctor : doc.is_doctor, division: division || null });
+    const { name, phone, clinic_name, birthday, anniversary, clinic_anniversary, is_doctor, is_admin, division, password } = req.body;
+    await doc.update({ name, phone, clinic_name, birthday: birthday||null, anniversary: anniversary||null, clinic_anniversary: clinic_anniversary||null, is_doctor: is_doctor !== undefined ? is_doctor : doc.is_doctor, is_admin: is_admin !== undefined ? is_admin : doc.is_admin, division: division || null, password: password || doc.password });
     res.json(doc);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -290,6 +290,19 @@ router.patch('/doctors/:id/toggle', auth, requireSuperAdmin, async (req, res) =>
     if (!doc) return res.status(404).json({ error: 'Not found' });
     await doc.update({ is_active: !doc.is_active });
     res.json({ id: doc.id, is_active: doc.is_active });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Toggle admin status
+router.patch('/doctors/:id/admin', auth, requireSuperAdmin, async (req, res) => {
+  try {
+    const doc = await Doctor.findByPk(req.params.id);
+    if (!doc) return res.status(404).json({ error: 'Not found' });
+    const { is_admin } = req.body;
+    await doc.update({ is_admin: is_admin !== undefined ? is_admin : !doc.is_admin });
+    res.json({ id: doc.id, is_admin: doc.is_admin });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
