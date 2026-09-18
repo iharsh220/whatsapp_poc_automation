@@ -171,11 +171,13 @@ function renderUserRows(rows) {
           ${r.is_active ? 'Active' : 'Inactive'}
         </span>`;
 
-    const adminBtn = canToggle
+    const adminBtn = canModify
       ? `<button class="btn btn-sm ${r.is_admin ? 'btn-primary' : ''}" onclick="toggleAdmin(${r.id}, this)" style="min-width:70px" title="${r.is_admin ? 'Remove admin' : 'Make admin'}">
           ${r.is_admin ? 'Admin' : 'Set Admin'}
         </button>`
-      : '';
+      : `<span class="admin-badge ${r.is_admin ? 'on' : 'off'}">
+          ${r.is_admin ? 'Admin' : '—'}
+        </span>`;
 
     const editDeleteBtn = canModify ? `
       <button class="btn btn-sm btn-xls" onclick='openModal(${JSON.stringify(r)})'>

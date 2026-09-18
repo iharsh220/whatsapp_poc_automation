@@ -283,9 +283,8 @@ router.put('/doctors/:id', auth, requireSuperAdmin, async (req, res) => {
   }
 });
 
-// Combined toggle: one click toggles both is_active and is_admin
-// Super admins can do this for all doctors; division-admins only for their own division
-router.patch('/doctors/:id/toggle-access', auth, async (req, res) => {
+// Combined toggle: one click toggles both is_active and is_admin (super admin only)
+router.patch('/doctors/:id/toggle-access', auth, requireSuperAdmin, async (req, res) => {
   try {
     const doc = await Doctor.findByPk(req.params.id);
     if (!doc) return res.status(404).json({ error: 'Not found' });
@@ -317,8 +316,8 @@ router.patch('/doctors/:id/toggle', auth, async (req, res) => {
   }
 });
 
-// Toggle admin status only (division-aware)
-router.patch('/doctors/:id/admin', auth, async (req, res) => {
+// Toggle admin status only (super admin only)
+router.patch('/doctors/:id/admin', auth, requireSuperAdmin, async (req, res) => {
   try {
     const doc = await Doctor.findByPk(req.params.id);
     if (!doc) return res.status(404).json({ error: 'Not found' });
@@ -365,8 +364,12 @@ router.patch('/doctors/bulk-action', auth, async (req, res) => {
     switch (action) {
       case 'activate': update = { is_active: true }; break;
       case 'deactivate': update = { is_active: false }; break;
-      case 'make_admin': update = { is_admin: true }; break;
-      case 'remove_admin': update = { is_admin: false }; break;
+      case 'make_admin':
+        if (req.session.type !== 'superadmin') return res.status(403).json({ error: 'Only super admins can modify admin status' });
+        update = { is_admin: true }; break;
+      case 'remove_admin':
+        if (req.session.type !== 'superadmin') return res.status(403).json({ error: 'Only super admins can modify admin status' });
+        update = { is_admin: false }; break;
       default: return res.status(400).json({ error: 'Invalid action' });
     }
 
