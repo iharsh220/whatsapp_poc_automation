@@ -45,9 +45,19 @@ function updateUserInfo() {
   const nameEl = document.querySelector('.user-name');
   const roleEl = document.querySelector('.user-role');
   const avEl = document.querySelector('.user-av');
+  const brandEl = document.querySelector('.b-name');
+  const brandSubEl = document.querySelector('.b-sub');
   if (nameEl) nameEl.textContent = info.name || 'Admin';
-  if (roleEl) roleEl.textContent = info.type === 'doctor' ? 'Division Admin' : 'Super Admin';
+  if (roleEl) roleEl.textContent = info.type === 'doctor' ? 'Division Admin' : 'Admin';
   if (avEl) avEl.textContent = (info.name || 'Admin').charAt(0).toUpperCase();
+  if (brandEl) {
+    if (info.type === 'doctor' && info.division) {
+      brandEl.textContent = info.division.charAt(0).toUpperCase() + info.division.slice(1);
+    } else {
+      brandEl.textContent = 'Ostofit';
+    }
+  }
+  if (brandSubEl) brandSubEl.textContent = 'Admin';
   const adminOnly = document.querySelectorAll('.admin-only');
   adminOnly.forEach(el => { el.style.display = info.type === 'doctor' ? 'none' : ''; });
 }
