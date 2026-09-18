@@ -14,12 +14,32 @@ const upload = multer({ storage: multer.memoryStorage() });
 const ADMIN_USER = 'admin';
 const ADMIN_PASS = 'Digi@2026';
 
-const sessions = new Set();
+const sessions = new Map();
+
+function generateToken() {
+  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
 
 function auth(req, res, next) {
   const token = req.headers['x-admin-token'] || req.query.token;
-  if (sessions.has(token)) return next();
+  const session = sessions.get(token);
+  if (session) {
+    req.session = session;
+    return next();
+  }
   return res.status(401).json({ error: 'Unauthorized' });
+}
+
+function divisionFilter(session) {
+  if (session && session.type === 'doctor' && session.division) {
+    return { division: session.division };
+  }
+  return {};
+}
+
+function requireSuperAdmin(req, res, next) {
+  if (req.session && req.session.type === 'superadmin') return next();
+  return res.status(403).json({ error: 'Super admin access required' });
 }
 
 router.use(express.static(path.join(__dirname, 'views')));
@@ -27,15 +47,36 @@ router.use(express.static(path.join(__dirname, 'views')));
 router.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'index.html'));
 });
-
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  if (username === ADMIN_USER && password === ADMIN_PASS) {
-    const token = Math.random().toString(36).slice(2) + Date.now().toString(36);
-    sessions.add(token);
-    return res.json({ token });
+
+  try {
+    // Super admin login
+    if (username === ADMIN_USER && password === ADMIN_PASS) {
+      const token = generateToken();
+      sessions.set(token, { type: 'superadmin', division: null, name: 'Admin' });
+      return res.json({ token, type: 'superadmin', division: null, name: 'Admin' });
+    }
+
+    // Doctor admin login (by phone or name)
+    const doctor = await Doctor.findOne({
+      where: {
+        [Op.or]: [{ phone: username }, { name: username }],
+        is_admin: true,
+      },
+    });
+
+    if (doctor && doctor.password === password) {
+      const token = generateToken();
+      sessions.set(token, { type: 'doctor', division: doctor.division, name: doctor.name, doctorId: doctor.id });
+      return res.json({ token, type: 'doctor', division: doctor.division, name: doctor.name });
+    }
+
+    return res.status(401).json({ error: 'Invalid credentials' });
+  } catch (err) {
+    console.error('[login-error]', err.message);
+    return res.status(500).json({ error: 'Login failed' });
   }
-  return res.status(401).json({ error: 'Invalid credentials' });
 });
 
 router.post('/logout', auth, (req, res) => {
@@ -43,9 +84,13 @@ router.post('/logout', auth, (req, res) => {
   res.json({ success: true });
 });
 
+router.get('/me', auth, (req, res) => {
+  res.json(req.session);
+});
+
 router.get('/stats', auth, async (req, res) => {
   try {
-    const where = buildWhere(req.query);
+    const where = buildWhere(req.query, req.session);
     const [total, sent, delivered, read, failed] = await Promise.all([
       MessageLog.count({ where }),
       MessageLog.count({ where: { ...where, status: 'sent' } }),
@@ -87,7 +132,7 @@ router.get('/messages', auth, async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const offset = (page - 1) * limit;
-    const where = buildWhere(req.query);
+    const where = buildWhere(req.query, req.session);
 
     const { count, rows } = await MessageLog.findAndCountAll({
       where,
@@ -105,7 +150,7 @@ router.get('/messages', auth, async (req, res) => {
 
 router.get('/export', auth, async (req, res) => {
   try {
-    const where = buildWhere(req.query);
+    const where = buildWhere(req.query, req.session);
     const rows = await MessageLog.findAll({
       where,
       attributes: SAFE_ATTRS,
@@ -134,8 +179,8 @@ router.get('/export', auth, async (req, res) => {
   }
 });
 
-function buildWhere(query) {
-  const where = {};
+function buildWhere(query, session) {
+  const where = { ...divisionFilter(session) };
   if (query.doctor_name) where.doctor_name = { [Op.like]: `%${query.doctor_name}%` };
   if (query.recipient_id) where.recipient_id = { [Op.like]: `%${query.recipient_id}%` };
   if (query.message_type) where.message_type = query.message_type;
@@ -158,18 +203,19 @@ function buildWhere(query) {
 // Stats for users page
 router.get('/doctors/stats', auth, async (req, res) => {
   try {
+    const divFilter = divisionFilter(req.session);
     const year = req.query.year ? parseInt(req.query.year) : null;
-    const totalDoctors = await Doctor.count();
-    const activeDoctors = await Doctor.count({ where: { is_active: true } });
+    const totalDoctors = await Doctor.count({ where: divFilter });
+    const activeDoctors = await Doctor.count({ where: { ...divFilter, is_active: true } });
 
-    const msgWhere = {};
+    const msgWhere = { ...divisionFilter(req.session) };
     if (year) {
       msgWhere.createdAt = {
         [Op.gte]: new Date(`${year}-01-01`),
         [Op.lte]: new Date(`${year}-12-31T23:59:59`),
       };
     }
-    const totalMessages = await MessageLog.count({ where: msgWhere, attributes: SAFE_ATTRS });
+    const totalMessages = await MessageLog.count({ where: msgWhere });
 
     res.json({ totalDoctors, activeDoctors, inactiveDoctors: totalDoctors - activeDoctors, totalMessages });
   } catch (err) {
@@ -186,14 +232,14 @@ router.get('/doctors', auth, async (req, res) => {
     const year = req.query.year ? parseInt(req.query.year) : null;
     const search = req.query.search || '';
 
-    const where = {};
+    const where = { ...divisionFilter(req.session) };
     if (search) where.name = { [Op.like]: `%${search}%` };
     if (req.query.status === 'active') where.is_active = true;
     if (req.query.status === 'inactive') where.is_active = false;
 
     const { count, rows } = await Doctor.findAndCountAll({ where, order: [['name', 'ASC']], limit, offset });
 
-    const msgWhere = {};
+    const msgWhere = { ...divisionFilter(req.session) };
     if (year) {
       msgWhere.createdAt = {
         [Op.gte]: new Date(`${year}-01-01`),
@@ -213,7 +259,7 @@ router.get('/doctors', auth, async (req, res) => {
 });
 
 // Create doctor
-router.post('/doctors', auth, async (req, res) => {
+router.post('/doctors', auth, requireSuperAdmin, async (req, res) => {
   try {
     const { name, phone, clinic_name, birthday, anniversary, clinic_anniversary, is_doctor, division } = req.body;
     if (!name || !phone) return res.status(400).json({ error: 'Name and phone are required' });
@@ -225,7 +271,7 @@ router.post('/doctors', auth, async (req, res) => {
 });
 
 // Update doctor
-router.put('/doctors/:id', auth, async (req, res) => {
+router.put('/doctors/:id', auth, requireSuperAdmin, async (req, res) => {
   try {
     const doc = await Doctor.findByPk(req.params.id);
     if (!doc) return res.status(404).json({ error: 'Not found' });
@@ -238,7 +284,7 @@ router.put('/doctors/:id', auth, async (req, res) => {
 });
 
 // Toggle active status
-router.patch('/doctors/:id/toggle', auth, async (req, res) => {
+router.patch('/doctors/:id/toggle', auth, requireSuperAdmin, async (req, res) => {
   try {
     const doc = await Doctor.findByPk(req.params.id);
     if (!doc) return res.status(404).json({ error: 'Not found' });
@@ -250,7 +296,7 @@ router.patch('/doctors/:id/toggle', auth, async (req, res) => {
 });
 
 // Bulk upload users via CSV/Excel with streaming progress
-router.post('/doctors/upload-stream', auth, upload.single('file'), async (req, res) => {
+router.post('/doctors/upload-stream', auth, requireSuperAdmin, upload.single('file'), async (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
@@ -321,7 +367,7 @@ router.post('/doctors/upload-stream', auth, upload.single('file'), async (req, r
 });
 
 // Delete doctor
-router.delete('/doctors/:id', auth, async (req, res) => {
+router.delete('/doctors/:id', auth, requireSuperAdmin, async (req, res) => {
   try {
     const doc = await Doctor.findByPk(req.params.id);
     if (!doc) return res.status(404).json({ error: 'Not found' });

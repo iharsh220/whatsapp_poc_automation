@@ -11,6 +11,19 @@ function clearToken() {
 }
 function getToken() { return TOKEN; }
 
+function setSessionInfo(type, division, name) {
+  localStorage.setItem('adm_session', JSON.stringify({ type, division, name }));
+}
+function getSessionInfo() {
+  try { return JSON.parse(localStorage.getItem('adm_session') || '{}'); } catch { return {}; }
+}
+function clearSessionInfo() {
+  localStorage.removeItem('adm_session');
+}
+function isSuperAdmin() {
+  return getSessionInfo().type === 'superadmin';
+}
+
 function setText(id, val) {
   const el = document.getElementById(id);
   if (el) el.textContent = val;

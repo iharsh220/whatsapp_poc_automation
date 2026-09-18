@@ -156,7 +156,18 @@ function renderUserRows(rows) {
   }
   const checkSvg = `<polyline points="20 6 9 17 4 12"/>`;
   const crossSvg = `<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>`;
-  tbody.innerHTML = rows.map(r => `
+  const canModify = isSuperAdmin();
+  tbody.innerHTML = rows.map(r => {
+    const actions = canModify ? `
+      <button class="btn btn-sm btn-xls" onclick='openModal(${JSON.stringify(r)})'>
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit
+      </button>
+      <button class="btn btn-sm btn-danger" onclick="deleteDoctor(${r.id})">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        Delete
+      </button>` : '';
+    return `
     <tr>
       <td class="dim">${r.id}</td>
       <td><div style="font-weight:600">${r.name}</div></td>
@@ -167,24 +178,16 @@ function renderUserRows(rows) {
       <td class="dim" style="font-size:12px">${r.clinic_anniversary || '—'}</td>
       <td><span class="msg-count-badge">${r.msgCount || 0}</span></td>
       <td>
-        <button class="toggle-btn ${r.is_active ? 'on' : 'off'}" onclick="toggleStatus(${r.id}, this)">
+        ${canModify ? `<button class="toggle-btn ${r.is_active ? 'on' : 'off'}" onclick="toggleStatus(${r.id}, this)">
           <svg viewBox="0 0 24 24">${r.is_active ? checkSvg : crossSvg}</svg>
           ${r.is_active ? 'Active' : 'Inactive'}
-        </button>
+        </button>` : `<span class="toggle-btn ${r.is_active ? 'on' : 'off'}">${r.is_active ? 'Active' : 'Inactive'}</span>`}
       </td>
       <td>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-sm btn-xls" onclick='openModal(${JSON.stringify(r)})'>
-            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            Edit
-          </button>
-          <button class="btn btn-sm btn-danger" onclick="deleteDoctor(${r.id})">
-            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-            Delete
-          </button>
-        </div>
+        <div style="display:flex;gap:6px">${actions}</div>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 async function toggleStatus(id, btn) {

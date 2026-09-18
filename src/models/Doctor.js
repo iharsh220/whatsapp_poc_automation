@@ -12,6 +12,7 @@ const Doctor = sequelize.define('Doctor', {
   is_active: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
   is_doctor: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
   is_admin: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+  password: { type: DataTypes.STRING, allowNull: false, defaultValue: 'Digi@2026' },
   division: { type: DataTypes.STRING, allowNull: true },
 }, {
   tableName: 'doctors',

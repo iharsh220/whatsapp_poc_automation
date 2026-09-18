@@ -12,6 +12,7 @@ async function doLogin() {
     const d = await r.json();
     if (!r.ok) { err.style.display = 'block'; return; }
     setToken(d.token);
+    setSessionInfo(d.type, d.division, d.name);
     boot();
   } catch {
     err.style.display = 'block';
@@ -21,6 +22,7 @@ async function doLogin() {
 async function doLogout() {
   await fetch(`${BASE}/logout`, { method: 'POST', headers: { 'x-admin-token': getToken() } }).catch(() => {});
   clearToken();
+  clearSessionInfo();
   document.getElementById('dashboard').style.display = 'none';
   document.getElementById('loginPage').style.display = 'flex';
 }
@@ -38,9 +40,22 @@ function togglePassword() {
        <circle cx="12" cy="12" r="3"/>`;
 }
 
+function updateUserInfo() {
+  const info = getSessionInfo();
+  const nameEl = document.querySelector('.user-name');
+  const roleEl = document.querySelector('.user-role');
+  const avEl = document.querySelector('.user-av');
+  if (nameEl) nameEl.textContent = info.name || 'Admin';
+  if (roleEl) roleEl.textContent = info.type === 'doctor' ? 'Division Admin' : 'Super Admin';
+  if (avEl) avEl.textContent = (info.name || 'Admin').charAt(0).toUpperCase();
+  const adminOnly = document.querySelectorAll('.admin-only');
+  adminOnly.forEach(el => { el.style.display = info.type === 'doctor' ? 'none' : ''; });
+}
+
 function boot() {
   document.getElementById('loginPage').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
+  updateUserInfo();
   populateYears();
   loadStats();
   loadMessages(1);

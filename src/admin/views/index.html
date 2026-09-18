@@ -226,12 +226,12 @@
             <option value="inactive">Inactive</option>
           </select>
           <input type="text" id="uSearch" class="inline-input" placeholder="Search doctor..." oninput="onUserFilterChange()"/>
-          <button class="btn btn-xls" id="btnUploadUsers" onclick="document.getElementById('userUpload').click()">
+          <button class="btn btn-xls admin-only" id="btnUploadUsers" onclick="document.getElementById('userUpload').click()">
             <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Upload Users
           </button>
           <input type="file" id="userUpload" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleUserUpload(this)"/>
-          <button class="btn btn-primary" onclick="openModal(null)">
+          <button class="btn btn-primary admin-only" onclick="openModal(null)">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Add Doctor
           </button>
