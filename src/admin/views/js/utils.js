@@ -1,4 +1,4 @@
-const BASE = '/osteofit/automation/admin';
+const BASE = '/digilabs/automation/admin';
 let TOKEN = localStorage.getItem('adm_tok') || '';
 
 function setToken(t) {

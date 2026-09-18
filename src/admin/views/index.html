@@ -226,6 +226,19 @@
             <option value="inactive">Inactive</option>
           </select>
           <input type="text" id="uSearch" class="inline-input" placeholder="Search doctor..." oninput="onUserFilterChange()"/>
+          <select id="uBulkAction" class="inline-select">
+            <option value="">Bulk Action</option>
+            <option value="activate">Activate All</option>
+            <option value="deactivate">Deactivate All</option>
+            <option value="make_admin">Make All Admin</option>
+            <option value="remove_admin">Remove All Admin</option>
+          </select>
+          <select id="uDivisionFilter" class="inline-select">
+            <option value="">All Divisions</option>
+          </select>
+          <button class="btn btn-primary" onclick="applyBulkAction()">
+            Apply
+          </button>
           <button class="btn btn-xls admin-only" id="btnUploadUsers" onclick="document.getElementById('userUpload').click()">
             <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Upload Users

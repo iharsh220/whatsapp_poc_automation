@@ -6,9 +6,9 @@ const adminRoutes = require('./admin/adminRoutes');
 const app = express();
 app.use(express.json());
 
-app.use('/osteofit/automation/webhook', webhookRoutes);
-app.use('/osteofit/automation/admin', adminRoutes);
+app.use('/digilabs/automation/webhook', webhookRoutes);
+app.use('/digilabs/automation/admin', adminRoutes);
 
-app.get('/osteofit/automation/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/digilabs/automation/health', (req, res) => res.json({ status: 'ok' }));
 
 module.exports = app; 

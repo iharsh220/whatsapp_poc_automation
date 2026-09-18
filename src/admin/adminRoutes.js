@@ -283,11 +283,33 @@ router.put('/doctors/:id', auth, requireSuperAdmin, async (req, res) => {
   }
 });
 
-// Toggle active status
-router.patch('/doctors/:id/toggle', auth, requireSuperAdmin, async (req, res) => {
+// Combined toggle: one click toggles both is_active and is_admin
+// Super admins can do this for all doctors; division-admins only for their own division
+router.patch('/doctors/:id/toggle-access', auth, async (req, res) => {
   try {
     const doc = await Doctor.findByPk(req.params.id);
     if (!doc) return res.status(404).json({ error: 'Not found' });
+
+    // Division-based access: doctor-admins can only modify doctors in their division
+    if (req.session.type === 'doctor' && req.session.division && doc.division !== req.session.division) {
+      return res.status(403).json({ error: 'Access denied: doctor belongs to a different division' });
+    }
+
+    await doc.update({ is_active: !doc.is_active, is_admin: !doc.is_admin });
+    res.json({ id: doc.id, is_active: doc.is_active, is_admin: doc.is_admin });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Toggle active status only (division-aware)
+router.patch('/doctors/:id/toggle', auth, async (req, res) => {
+  try {
+    const doc = await Doctor.findByPk(req.params.id);
+    if (!doc) return res.status(404).json({ error: 'Not found' });
+    if (req.session.type === 'doctor' && req.session.division && doc.division !== req.session.division) {
+      return res.status(403).json({ error: 'Access denied: doctor belongs to a different division' });
+    }
     await doc.update({ is_active: !doc.is_active });
     res.json({ id: doc.id, is_active: doc.is_active });
   } catch (err) {
@@ -295,14 +317,61 @@ router.patch('/doctors/:id/toggle', auth, requireSuperAdmin, async (req, res) =>
   }
 });
 
-// Toggle admin status
-router.patch('/doctors/:id/admin', auth, requireSuperAdmin, async (req, res) => {
+// Toggle admin status only (division-aware)
+router.patch('/doctors/:id/admin', auth, async (req, res) => {
   try {
     const doc = await Doctor.findByPk(req.params.id);
     if (!doc) return res.status(404).json({ error: 'Not found' });
+    if (req.session.type === 'doctor' && req.session.division && doc.division !== req.session.division) {
+      return res.status(403).json({ error: 'Access denied: doctor belongs to a different division' });
+    }
     const { is_admin } = req.body;
     await doc.update({ is_admin: is_admin !== undefined ? is_admin : !doc.is_admin });
     res.json({ id: doc.id, is_admin: doc.is_admin });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Unique divisions (for bulk action dropdown)
+router.get('/doctors/divisions', auth, async (req, res) => {
+  try {
+    const divs = await Doctor.findAll({
+      attributes: ['division'],
+      where: { division: { [Op.ne]: null } },
+      group: ['division'],
+      raw: true,
+    });
+    res.json(divs.map(d => d.division));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Bulk action: activate/deactivate/make-admin/remove-admin (optionally by division)
+router.patch('/doctors/bulk-action', auth, async (req, res) => {
+  try {
+    const { action } = req.body;
+    const { division } = req.query;
+
+    const where = {};
+    if (req.session.type === 'doctor' && req.session.division) {
+      where.division = req.session.division;
+    } else if (division) {
+      where.division = division;
+    }
+
+    let update;
+    switch (action) {
+      case 'activate': update = { is_active: true }; break;
+      case 'deactivate': update = { is_active: false }; break;
+      case 'make_admin': update = { is_admin: true }; break;
+      case 'remove_admin': update = { is_admin: false }; break;
+      default: return res.status(400).json({ error: 'Invalid action' });
+    }
+
+    const [count] = await Doctor.update(update, { where });
+    res.json({ updated: count });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

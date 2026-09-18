@@ -5,7 +5,7 @@ function showPage(p) {
     const nav = document.getElementById('nav-' + n);
     if (nav) nav.classList.toggle('active', p === n);
   });
-  if (p === 'users') { loadUserStats(); loadUsers(1); }
+  if (p === 'users') { loadUserStats(); loadUsers(1); loadDivisions(); }
 }
 
 async function loadStats() {
