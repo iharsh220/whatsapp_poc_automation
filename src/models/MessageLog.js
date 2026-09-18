@@ -23,6 +23,8 @@ const MessageLog = sequelize.define('MessageLog', {
   error_title: { type: DataTypes.STRING },
   error_message: { type: DataTypes.TEXT },
   error_details: { type: DataTypes.TEXT },
+  doctor_division: { type: DataTypes.STRING },
+  doctor_is_doctor: { type: DataTypes.BOOLEAN, defaultValue: true },
 }, {
   tableName: 'message_logs',
   timestamps: true,
@@ -33,10 +35,13 @@ MessageLog.safeCreate = async function(data) {
   try {
     return await this.create(data);
   } catch (err) {
-    if (err.message?.includes('retry_count') || err.message?.includes('doctor_clinic_name')) {
+    if (err.message?.includes('retry_count') || err.message?.includes('doctor_clinic_name') ||
+        err.message?.includes('doctor_division') || err.message?.includes('doctor_is_doctor')) {
       const safe = { ...data };
       delete safe.retry_count;
       delete safe.doctor_clinic_name;
+      delete safe.doctor_division;
+      delete safe.doctor_is_doctor;
       return await this.create(safe);
     }
     throw err;

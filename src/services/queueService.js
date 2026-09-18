@@ -2,6 +2,7 @@ const redis = require('../config/redis');
 
 const QUEUE_KEY = 'whatsapp:message:queue';
 const RETRY_QUEUE_KEY = 'whatsapp:message:retry';
+const DEDUP_KEY = 'whatsapp:message:queued';
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 3 * 60 * 60 * 1000; // 3 hours
 const BLPOP_TIMEOUT = 10;
@@ -9,7 +10,17 @@ const BLPOP_TIMEOUT = 10;
 // ── Main Queue ── (FIFO list)
 
 async function pushToQueue(messageData) {
+  const dedupKey = `${messageData.doctorPhone || ''}:${messageData.type || ''}`;
+  // Prevent duplicate queue entries from cron double-runs (e.g. server restart)
+  const alreadyQueued = await redis.sismember(DEDUP_KEY, dedupKey);
+  if (alreadyQueued) {
+    console.log(`[dedup] skipping duplicate ${messageData.type} → ${messageData.to} (${messageData.doctorName})`);
+    return false;
+  }
+  await redis.sadd(DEDUP_KEY, dedupKey);
+  await redis.expire(DEDUP_KEY, 30); // 30s TTL — prevents double-sends, allows quick re-test
   await redis.rpush(QUEUE_KEY, JSON.stringify({ ...messageData, retryCount: 0 }));
+  return true;
 }
 
 async function popFromQueue() {
@@ -52,7 +63,7 @@ async function getQueueLength() {
 }
 
 async function clearQueues() {
-  await redis.del(QUEUE_KEY, RETRY_QUEUE_KEY);
+  await redis.del(QUEUE_KEY, RETRY_QUEUE_KEY, DEDUP_KEY);
 }
 
 module.exports = {

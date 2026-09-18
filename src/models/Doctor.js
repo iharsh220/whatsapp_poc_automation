@@ -10,6 +10,8 @@ const Doctor = sequelize.define('Doctor', {
   anniversary: { type: DataTypes.DATEONLY, allowNull: true },
   clinic_anniversary: { type: DataTypes.DATEONLY, allowNull: true },
   is_active: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
+  is_doctor: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
+  division: { type: DataTypes.STRING, allowNull: true },
 }, {
   tableName: 'doctors',
   timestamps: true,

@@ -217,6 +217,8 @@ function openModal(doc) {
   document.getElementById('mBirthday').value = doc ? (doc.birthday || '') : '';
   document.getElementById('mAnniversary').value = doc ? (doc.anniversary || '') : '';
   document.getElementById('mClinicAnniv').value = doc ? (doc.clinic_anniversary || '') : '';
+  document.getElementById('mDivision').value = doc ? (doc.division || '') : '';
+  document.getElementById('mIsDoctor').checked = doc ? (doc.is_doctor !== 0 && doc.is_doctor !== false) : true;
   document.getElementById('modalOverlay').classList.add('open');
 }
 
@@ -233,6 +235,8 @@ async function saveDoctor() {
     birthday: document.getElementById('mBirthday').value || null,
     anniversary: document.getElementById('mAnniversary').value || null,
     clinic_anniversary: document.getElementById('mClinicAnniv').value || null,
+    division: document.getElementById('mDivision').value.trim() || null,
+    is_doctor: document.getElementById('mIsDoctor').checked ? 1 : 0,
   };
   if (!body.name || !body.phone) { alert('Name and phone are required'); return; }
   try {

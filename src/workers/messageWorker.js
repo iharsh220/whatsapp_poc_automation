@@ -1,4 +1,5 @@
 require('dotenv').config();
+const redis = require('../config/redis');
 const { popFromQueue, popDueRetries, MAX_RETRIES } = require('../services/queueService');
 const { sendWhatsAppMessage } = require('../services/whatsappService');
 const { isSameDay } = require('../services/dateUtils');
@@ -12,26 +13,68 @@ async function processMessage(message) {
     to, templateName, bodyParameters, headerParameters, type,
     doctorId, doctorName, doctorPhone, doctorBirthday,
     doctorAnniversary, doctorClinicAnniversary, doctorClinicName,
+    doctorDivision, doctorIsDoctor,
     retryCount = 0,
     triggeredAt = new Date().toISOString(),
   } = message;
 
-  const meta = {
-    doctorId, doctorName, doctorPhone, doctorBirthday,
-    doctorAnniversary, doctorClinicAnniversary, doctorClinicName,
-    messageType: type, templateName,
-    retryCount, triggeredAt,
-    bodyParameters, headerParameters,
+  // Compact callback data — all fields fit within WhatsApp's 512-char limit
+  const callbackMeta = {
+    did: doctorId,
+    d: doctorName,
+    dp: doctorPhone,
+    db: doctorBirthday,
+    da: doctorAnniversary,
+    dca: doctorClinicAnniversary,
+    dcn: doctorClinicName,
+    div: doctorDivision,
+    did2: doctorIsDoctor,
+    div: doctorDivision,
+    t: templateName,
+    ty: type,
+    rc: retryCount,
+    ts: triggeredAt,
   };
 
   try {
-    await sendWhatsAppMessage(to, templateName, bodyParameters, headerParameters, meta);
+    await sendWhatsAppMessage(to, templateName, bodyParameters, headerParameters, callbackMeta);
     const label = retryCount > 0 ? `retry-${retryCount}` : 'sent';
     console.log(`[${label}] ${type} → ${to} (${doctorName})`);
   } catch (err) {
-    const firstError = err.response?.data?.errors?.[0] || {};
+    const status = err.response?.status || 'N/A';
+    const errData = err.response?.data;
+    const firstError = errData?.errors?.[0] || {};
     const errorCode = firstError.code ? Number(firstError.code) : null;
-    console.error(`[send-error] ${to} (${doctorName}) attempt:${retryCount + 1} code:${errorCode} - ${firstError.title || err.message}`);
+    const errDetail = firstError.title || firstError.message || err.message;
+
+    console.error(`[send-error] ${to} (${doctorName}) attempt:${retryCount + 1} http:${status} code:${errorCode} - ${errDetail}`);
+    if (errData && !errData.errors) {
+      console.error(`[send-error-details] ${JSON.stringify(errData).slice(0, 500)}`);
+    }
+
+    if (status === 400) {
+      await MessageLog.safeCreate({
+        doctor_id: doctorId || null,
+        doctor_name: doctorName || null,
+        doctor_phone: doctorPhone || null,
+        doctor_birthday: doctorBirthday || null,
+        doctor_anniversary: doctorAnniversary || null,
+        doctor_clinic_anniversary: doctorClinicAnniversary || null,
+        doctor_clinic_name: doctorClinicName || null,
+        doctor_division: doctorDivision || null,
+        doctor_is_doctor: doctorIsDoctor !== undefined ? doctorIsDoctor : null,
+        message_type: type || null,
+        template_name: templateName || null,
+        recipient_id: to ? to.replace('+91', '') : null,
+        status: 'failed',
+        retry_count: retryCount,
+        error_code: errorCode,
+        error_title: firstError.title || `HTTP ${status}`,
+        error_message: errDetail,
+        error_details: JSON.stringify(errData || {}).slice(0, 1000),
+      });
+      return;
+    }
 
     await MessageLog.safeCreate({
       doctor_id: doctorId || null,
@@ -41,6 +84,8 @@ async function processMessage(message) {
       doctor_anniversary: doctorAnniversary || null,
       doctor_clinic_anniversary: doctorClinicAnniversary || null,
       doctor_clinic_name: doctorClinicName || null,
+      doctor_division: doctorDivision || null,
+      doctor_is_doctor: doctorIsDoctor !== undefined ? doctorIsDoctor : null,
       message_type: type || null,
       template_name: templateName || null,
       recipient_id: to ? to.replace('+91', '') : null,
@@ -48,7 +93,7 @@ async function processMessage(message) {
       retry_count: retryCount,
       error_code: errorCode,
       error_title: firstError.title || null,
-      error_message: firstError.message || err.message || null,
+      error_message: errDetail,
       error_details: firstError.error_data?.details || null,
     });
   }
@@ -89,10 +134,7 @@ async function runWorker() {
 
   while (true) {
     try {
-      // 1. Process all due retries first (priority)
       await processRetries();
-
-      // 2. Process main queue (BLPOP blocks up to 10s when empty)
       await processMainQueue();
     } catch (err) {
       console.error('[worker-loop-error]', err.message);

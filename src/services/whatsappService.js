@@ -17,7 +17,7 @@ httpClient.interceptors.request.use(config => {
   return config;
 });
 
-async function sendWhatsAppMessage(to, templateName, bodyParameters = [], headerParameters = [], doctorMeta = {}) {
+async function sendWhatsAppMessage(to, templateName, bodyParameters = [], headerParameters = [], callbackMeta = {}) {
   const components = [];
   if (headerParameters.length > 0) components.push({ type: 'header', parameters: headerParameters });
   if (bodyParameters.length > 0) components.push({ type: 'body', parameters: bodyParameters });
@@ -32,7 +32,7 @@ async function sendWhatsAppMessage(to, templateName, bodyParameters = [], header
       components,
     },
     metaData: {
-      custom_callback_data: JSON.stringify(doctorMeta),
+      custom_callback_data: JSON.stringify(callbackMeta),
     },
   };
 

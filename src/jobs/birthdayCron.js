@@ -6,8 +6,8 @@ const { pushToQueue } = require('../services/queueService');
 const { formatPhone } = require('../services/dateUtils');
 
 const MESSAGE_TYPES = [
-  { field: 'birthday', type: 'birthday', template: process.env.BIRTHDAY_TEMPLATE, videoUrl: process.env.BIRTHDAY_URL },
-  { field: 'anniversary', type: 'anniversary', template: process.env.ANNIVERSARY_TEMPLATE, videoUrl: process.env.ANNIVERSARY_URL },
+  { field: 'birthday',           type: 'birthday',           template: process.env.BIRTHDAY_TEMPLATE,          videoUrl: process.env.BIRTHDAY_URL },
+  { field: 'anniversary',        type: 'anniversary',        template: process.env.ANNIVERSARY_TEMPLATE,         videoUrl: process.env.ANNIVERSARY_URL },
   { field: 'clinic_anniversary', type: 'clinic_anniversary', template: process.env.CLINIC_ANNIVERSARY_TEMPLATE, videoUrl: process.env.CLINIC_ANNIVERSARY_URL },
 ];
 
@@ -27,7 +27,7 @@ async function checkAndQueueMessages() {
       is_active: true,
       [Op.or]: orConditions,
     },
-    attributes: ['id', 'name', 'phone', 'clinic_name', 'birthday', 'anniversary', 'clinic_anniversary'],
+    attributes: ['id', 'name', 'phone', 'clinic_name', 'birthday', 'anniversary', 'clinic_anniversary', 'division', 'is_doctor'],
   });
 
   const tasks = [];
@@ -41,42 +41,55 @@ async function checkAndQueueMessages() {
         continue;
       }
 
-      tasks.push(
-        pushToQueue({
-          to: formatPhone(doctor.phone),
-          templateName: job.template,
-          bodyParameters: [{ type: 'text', text: doctor.name }],
-          headerParameters: [{ type: 'video', video: { link: job.videoUrl } }],
-          doctorId: doctor.id,
-          doctorName: doctor.name,
-          doctorPhone: doctor.phone,
-          doctorBirthday: doctor.birthday,
-          doctorAnniversary: doctor.anniversary,
-          doctorClinicAnniversary: doctor.clinic_anniversary,
+      const messageData = {
+        to: formatPhone(doctor.phone),
+        templateName: job.template,
+        bodyParameters: [{ type: 'text', text: doctor.name }],
+        headerParameters: [{ type: 'video', video: { link: job.videoUrl } }],
+        doctorId: doctor.id,
+        doctorName: doctor.name,
+        doctorPhone: doctor.phone,
+        doctorBirthday: doctor.birthday,
+        doctorAnniversary: doctor.anniversary,
+        doctorClinicAnniversary: doctor.clinic_anniversary,
           doctorClinicName: doctor.clinic_name,
+          doctorDivision: doctor.division,
+          doctorIsDoctor: doctor.is_doctor ? 1 : 0,
           type: job.type,
-        }).then(() => console.log(`[cron] queued ${job.type} → ${doctor.name} (${doctor.phone})`))
-          .catch(err => console.error(`[cron] queue-error ${job.type} → ${doctor.name}:`, err.message))
+      };
+
+      tasks.push(
+        pushToQueue(messageData)
+          .then(queued => {
+            if (queued) console.log(`[cron] queued ${job.type} → ${doctor.name} (${doctor.phone})`);
+            return queued;
+          })
+          .catch(err => {
+            console.error(`[cron] queue-error ${job.type} → ${doctor.name}:`, err.message);
+            return null;
+          })
       );
     }
   }
 
   const results = await Promise.allSettled(tasks);
-  const succeeded = results.filter(r => r.status === 'fulfilled').length;
-  const failed = results.filter(r => r.status === 'rejected').length;
-  console.log(`[cron] done — queued:${succeeded} failed:${failed} total:${results.length}`);
+  const queued = results.filter(r => r.status === 'fulfilled' && r.value === true).length;
+  const skipped = results.filter(r => r.status === 'fulfilled' && r.value === false).length;
+  const failed = results.filter(r => r.status === 'fulfilled' && r.value === null).length +
+                 results.filter(r => r.status === 'rejected').length;
+  console.log(`[cron] done — queued:${queued} skipped:${skipped} failed:${failed} total:${results.length}`);
 }
 
 async function startCron() {
-  cron.schedule('0 9 * * *', async () => {
-    console.log('[cron] running daily job...');
-    try {
-      await checkAndQueueMessages();
-    } catch (err) {
-      console.error('[cron] error:', err.message);
-    }
-  }, { timezone: 'Asia/Kolkata' });
-  //  await checkAndQueueMessages();
+  // cron.schedule('0 9 * * *', async () => {
+  //   console.log('[cron] running daily job...');
+  //   try {
+  //     await checkAndQueueMessages();
+  //   } catch (err) {
+  //     console.error('[cron] error:', err.message);
+  //   }
+  // }, { timezone: 'Asia/Kolkata' });
+  await checkAndQueueMessages();
   console.log('[cron] scheduled: daily at 9:00 AM IST');
 }
 

@@ -7,6 +7,8 @@ const Doctor = require('../models/Doctor');
 const multer = require('multer');
 const XLSX = require('xlsx');
 
+const { getQueueLength, clearQueues } = require('../services/queueService');
+
 const upload = multer({ storage: multer.memoryStorage() });
 
 const ADMIN_USER = 'admin';
@@ -77,7 +79,7 @@ const SAFE_ATTRS = [
   'message_type', 'template_name', 'recipient_id', 'status',
   'billable', 'category', 'timestamp',
   'error_code', 'error_title', 'error_message', 'error_details',
-  'createdAt', 'updatedAt',
+  'doctor_division', 'doctor_is_doctor', 'createdAt', 'updatedAt',
 ];
 
 router.get('/messages', auth, async (req, res) => {
@@ -213,9 +215,9 @@ router.get('/doctors', auth, async (req, res) => {
 // Create doctor
 router.post('/doctors', auth, async (req, res) => {
   try {
-    const { name, phone, clinic_name, birthday, anniversary, clinic_anniversary } = req.body;
+    const { name, phone, clinic_name, birthday, anniversary, clinic_anniversary, is_doctor, division } = req.body;
     if (!name || !phone) return res.status(400).json({ error: 'Name and phone are required' });
-    const doc = await Doctor.create({ name, phone, clinic_name, birthday: birthday||null, anniversary: anniversary||null, clinic_anniversary: clinic_anniversary||null });
+    const doc = await Doctor.create({ name, phone, clinic_name, birthday: birthday||null, anniversary: anniversary||null, clinic_anniversary: clinic_anniversary||null, is_doctor: is_doctor !== undefined ? is_doctor : true, division: division || null });
     res.json(doc);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -227,8 +229,8 @@ router.put('/doctors/:id', auth, async (req, res) => {
   try {
     const doc = await Doctor.findByPk(req.params.id);
     if (!doc) return res.status(404).json({ error: 'Not found' });
-    const { name, phone, clinic_name, birthday, anniversary, clinic_anniversary } = req.body;
-    await doc.update({ name, phone, clinic_name, birthday: birthday||null, anniversary: anniversary||null, clinic_anniversary: clinic_anniversary||null });
+    const { name, phone, clinic_name, birthday, anniversary, clinic_anniversary, is_doctor, division } = req.body;
+    await doc.update({ name, phone, clinic_name, birthday: birthday||null, anniversary: anniversary||null, clinic_anniversary: clinic_anniversary||null, is_doctor: is_doctor !== undefined ? is_doctor : doc.is_doctor, division: division || null });
     res.json(doc);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -290,15 +292,15 @@ router.post('/doctors/upload-stream', auth, upload.single('file'), async (req, r
           const val = String(row.is_active).toLowerCase();
           is_active = val === 'true' || val === '1' || val === 'yes';
         }
+        const division = row.division ? String(row.division).trim() : null;
+        let is_doctor = true;
+        if (row.is_doctor !== undefined && row.is_doctor !== '') {
+          const val = String(row.is_doctor).toLowerCase();
+          is_doctor = val === 'true' || val === '1' || val === 'yes';
+        }
 
         await Doctor.create({
-          name,
-          phone,
-          clinic_name,
-          birthday,
-          anniversary,
-          clinic_anniversary,
-          is_active,
+          name, phone, clinic_name, birthday, anniversary, clinic_anniversary, is_active, is_doctor, division,
         });
         added++;
       }
@@ -324,6 +326,25 @@ router.delete('/doctors/:id', auth, async (req, res) => {
     const doc = await Doctor.findByPk(req.params.id);
     if (!doc) return res.status(404).json({ error: 'Not found' });
     await doc.destroy();
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Queue management
+router.get('/queue', auth, async (req, res) => {
+  try {
+    const lengths = await getQueueLength();
+    res.json(lengths);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete('/queue', auth, async (req, res) => {
+  try {
+    await clearQueues();
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
