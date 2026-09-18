@@ -34,7 +34,13 @@ async function checkAndQueueMessages() {
 
   for (const doctor of doctors) {
     for (const job of MESSAGE_TYPES) {
-      if (!doctor[job.field]) continue;
+      const dateValue = doctor[job.field];
+      if (!dateValue) continue;
+
+      // Verify THIS specific date is today (SQL returned doctor for any matching date)
+      const d = new Date(dateValue);
+      if (String(d.getMonth() + 1).padStart(2, '0') !== month ||
+          String(d.getDate()).padStart(2, '0') !== day) continue;
 
       if (!job.template || !job.videoUrl) {
         console.warn(`[cron] Missing template/videoUrl for ${job.type} — add to .env`);
@@ -49,13 +55,13 @@ async function checkAndQueueMessages() {
         doctorId: doctor.id,
         doctorName: doctor.name,
         doctorPhone: doctor.phone,
-        doctorBirthday: doctor.birthday,
-        doctorAnniversary: doctor.anniversary,
-        doctorClinicAnniversary: doctor.clinic_anniversary,
-          doctorClinicName: doctor.clinic_name,
-          doctorDivision: doctor.division,
-          doctorIsDoctor: doctor.is_doctor ? 1 : 0,
-          type: job.type,
+        doctorBirthday: job.type === 'birthday' ? doctor.birthday : null,
+        doctorAnniversary: job.type === 'anniversary' ? doctor.anniversary : null,
+        doctorClinicAnniversary: job.type === 'clinic_anniversary' ? doctor.clinic_anniversary : null,
+        doctorClinicName: doctor.clinic_name,
+        doctorDivision: doctor.division,
+        doctorIsDoctor: doctor.is_doctor ? 1 : 0,
+        type: job.type,
       };
 
       tasks.push(

@@ -79,7 +79,7 @@ const SAFE_ATTRS = [
   'message_type', 'template_name', 'recipient_id', 'status',
   'billable', 'category', 'timestamp',
   'error_code', 'error_title', 'error_message', 'error_details',
-  'doctor_division', 'doctor_is_doctor', 'createdAt', 'updatedAt',
+  'division', 'doctor_is_doctor', 'createdAt', 'updatedAt',
 ];
 
 router.get('/messages', auth, async (req, res) => {
