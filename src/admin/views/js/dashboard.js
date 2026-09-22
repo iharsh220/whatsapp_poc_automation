@@ -123,7 +123,7 @@ function renderTimelineChart(data) {
         responsive: true,
         maintainAspectRatio: false,
         plugins: { legend: { position: 'top' } },
-        scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } },
+         scales: { x: { stacked: false }, y: { stacked: false, beginAtZero: true } },
       },
     });
   }

@@ -144,6 +144,7 @@ td.dim { color: var(--text-3); }
 .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 @media (max-width: 768px) { .chart-row { grid-template-columns: 1fr; } }
 .chart-card canvas { max-height: 220px; }
+#chartTimeline { max-height: 400px; }
 .inline-input { padding: 8px 12px; border: 1.5px solid var(--border-2); border-radius: 8px; font-size: 13px; color: var(--text); background: var(--white); width: 180px; }
 .inline-input:focus, .inline-select:focus { outline: none; border-color: var(--primary); }
 
