@@ -54,7 +54,7 @@ function updateUserInfo() {
     if (info.type === 'doctor' && info.division) {
       brandEl.textContent = info.division.charAt(0).toUpperCase() + info.division.slice(1);
     } else {
-      brandEl.textContent = 'Ostofit';
+      brandEl.textContent = 'Automation Dashboard';
     }
   }
   if (brandSubEl) brandSubEl.textContent = 'Admin';
