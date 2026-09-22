@@ -37,7 +37,7 @@ router.post('/status_callback', async (req, res) => {
   res.status(200).json({ status: 'received' });
 
   const statuses = req.body.statuses || [];
-
+  console.log(req.body);
   for (const s of statuses) {
     try {
       let cb = {};
