@@ -6,8 +6,8 @@ const { pushToQueue } = require('../services/queueService');
 const { formatPhone } = require('../services/dateUtils');
 
 const MESSAGE_TYPES = [
-  { field: 'birthday',           type: 'birthday',           template: process.env.BIRTHDAY_TEMPLATE,          videoUrl: process.env.BIRTHDAY_URL },
-  { field: 'anniversary',        type: 'anniversary',        template: process.env.ANNIVERSARY_TEMPLATE,         videoUrl: process.env.ANNIVERSARY_URL },
+  { field: 'birthday', type: 'birthday', template: process.env.BIRTHDAY_TEMPLATE, videoUrl: process.env.BIRTHDAY_URL },
+  { field: 'anniversary', type: 'anniversary', template: process.env.ANNIVERSARY_TEMPLATE, videoUrl: process.env.ANNIVERSARY_URL },
   { field: 'clinic_anniversary', type: 'clinic_anniversary', template: process.env.CLINIC_ANNIVERSARY_TEMPLATE, videoUrl: process.env.CLINIC_ANNIVERSARY_URL },
 ];
 
@@ -40,7 +40,7 @@ async function checkAndQueueMessages() {
       // Verify THIS specific date is today (SQL returned doctor for any matching date)
       const d = new Date(dateValue);
       if (String(d.getMonth() + 1).padStart(2, '0') !== month ||
-          String(d.getDate()).padStart(2, '0') !== day) continue;
+        String(d.getDate()).padStart(2, '0') !== day) continue;
 
       if (!job.template || !job.videoUrl) {
         console.warn(`[cron] Missing template/videoUrl for ${job.type} — add to .env`);
@@ -82,20 +82,20 @@ async function checkAndQueueMessages() {
   const queued = results.filter(r => r.status === 'fulfilled' && r.value === true).length;
   const skipped = results.filter(r => r.status === 'fulfilled' && r.value === false).length;
   const failed = results.filter(r => r.status === 'fulfilled' && r.value === null).length +
-                 results.filter(r => r.status === 'rejected').length;
+    results.filter(r => r.status === 'rejected').length;
   console.log(`[cron] done — queued:${queued} skipped:${skipped} failed:${failed} total:${results.length}`);
 }
 
 async function startCron() {
-  cron.schedule('0 9 * * *', async () => {
-    console.log('[cron] running daily job...');
-    try {
-      await checkAndQueueMessages();
-    } catch (err) {
-      console.error('[cron] error:', err.message);
-    }
-  }, { timezone: 'Asia/Kolkata' });
-  // await checkAndQueueMessages();
+  // cron.schedule('0 9 * * *', async () => {
+  //   console.log('[cron] running daily job...');
+  //   try {
+  //     await checkAndQueueMessages();
+  //   } catch (err) {
+  //     console.error('[cron] error:', err.message);
+  //   }
+  // }, { timezone: 'Asia/Kolkata' });
+  await checkAndQueueMessages();
   console.log('[cron] scheduled: daily at 9:00 AM IST');
 }
 

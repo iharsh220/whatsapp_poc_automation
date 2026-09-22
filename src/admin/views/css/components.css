@@ -135,6 +135,15 @@ td.dim { color: var(--text-3); }
 .spin { display: inline-block; width: 22px; height: 22px; border: 2.5px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .inline-select { padding: 8px 12px; border: 1.5px solid var(--border-2); border-radius: 8px; font-size: 13px; color: var(--text); background: var(--white); cursor: pointer; }
+
+/* ── CHARTS ── */
+.chart-filters-bar { display: flex; gap: 10px; padding: 16px 0; align-items: center; flex-wrap: wrap; }
+.charts-section { display: flex; flex-direction: column; gap: 20px; }
+.chart-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: 16px 20px; }
+.chart-card-head { font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 12px; }
+.chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 768px) { .chart-row { grid-template-columns: 1fr; } }
+.chart-card canvas { max-height: 220px; }
 .inline-input { padding: 8px 12px; border: 1.5px solid var(--border-2); border-radius: 8px; font-size: 13px; color: var(--text); background: var(--white); width: 180px; }
 .inline-input:focus, .inline-select:focus { outline: none; border-color: var(--primary); }
 

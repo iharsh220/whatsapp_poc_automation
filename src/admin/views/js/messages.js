@@ -15,6 +15,7 @@ function onFilterChange() {
     buildFilters();
     loadStats();
     loadMessages(1);
+    loadCharts();
     renderActiveTags();
   }, 400);
 }
@@ -54,6 +55,7 @@ function removeFilter(key) {
   renderActiveTags();
   loadStats();
   loadMessages(1);
+  loadCharts();
 }
 
 function resetFilters() {
@@ -65,6 +67,7 @@ function resetFilters() {
   renderActiveTags();
   loadStats();
   loadMessages(1);
+  loadCharts();
 }
 
 async function loadMessages(page) {

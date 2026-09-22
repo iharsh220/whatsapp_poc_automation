@@ -68,6 +68,7 @@ function boot() {
   updateUserInfo();
   populateYears();
   loadStats();
+  loadCharts();
   loadMessages(1);
 }
 

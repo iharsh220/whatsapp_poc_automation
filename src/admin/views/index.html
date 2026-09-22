@@ -143,8 +143,43 @@
             <div class="ts f"><div class="ts-val" id="caF">—</div><div class="ts-lbl">Failed</div></div>
           </div>
         </div>
-      </div>
-    </div>
+       </div>
+
+       <!-- CHART FILTERS -->
+       <div class="chart-filters-bar">
+         <select id="chartType" class="inline-select" onchange="onChartFilterChange()">
+           <option value="">All Types</option>
+           <option value="birthday">Birthday</option>
+           <option value="anniversary">Anniversary</option>
+           <option value="clinic_anniversary">Clinic Anniv</option>
+         </select>
+         <input type="date" id="chartFromDate" class="inline-input" style="width:auto;padding:6px 10px" onchange="onChartFilterChange()"/>
+         <input type="date" id="chartToDate" class="inline-input" style="width:auto;padding:6px 10px" onchange="onChartFilterChange()"/>
+         <input type="text" id="chartDoctor" class="inline-input" placeholder="Doctor name..." style="width:160px" oninput="onChartFilterChange()"/>
+         <select id="chartGroupBy" class="inline-select" onchange="onChartFilterChange()">
+           <option value="day">Group: Day</option>
+           <option value="month">Group: Month</option>
+         </select>
+       </div>
+
+       <!-- CHARTS -->
+       <div class="charts-section">
+         <div class="chart-card">
+           <div class="chart-card-head">Messages Over Time</div>
+            <canvas id="chartTimeline" height="220"></canvas>
+         </div>
+         <div class="chart-row">
+           <div class="chart-card">
+             <div class="chart-card-head">By Message Type</div>
+              <canvas id="chartTypeDist" height="200"></canvas>
+           </div>
+           <div class="chart-card">
+             <div class="chart-card-head">Top Doctors</div>
+              <canvas id="chartDoctor" height="200"></canvas>
+           </div>
+         </div>
+       </div>
+     </div>
 
     <!-- MESSAGES PAGE -->
     <div id="pageMessages" style="display:none">
@@ -322,6 +357,7 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/dashboard.js"></script>

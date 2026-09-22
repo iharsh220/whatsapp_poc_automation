@@ -1,7 +1,7 @@
 const express = require('express');
 const router = require('express').Router();
 const path = require('path');
-const { Op } = require('sequelize');
+const { Op, fn, literal } = require('sequelize');
 const MessageLog = require('../models/MessageLog');
 const Doctor = require('../models/Doctor');
 const multer = require('multer');
@@ -117,7 +117,56 @@ router.get('/stats', auth, async (req, res) => {
   }
 });
 
-// Safe columns only — excludes columns that may not exist in older DB tables
+// Chart data endpoint
+router.get('/stats/chart', auth, async (req, res) => {
+  try {
+    const where = buildWhere(req.query, req.session);
+    const groupBy = req.query.group_by || 'day';
+    const dateFormat = groupBy === 'month' ? '%Y-%m' : groupBy === 'year' ? '%Y' : '%Y-%m-%d';
+    const limit = parseInt(req.query.limit) || 50;
+
+    const dateExpr = `DATE_FORMAT(createdAt, '${dateFormat}')`;
+
+    // 1. Timeline: messages by status over time
+    const timeline = await MessageLog.findAll({
+      where,
+      attributes: [
+        [literal(dateExpr), 'date'],
+        [literal(`COUNT(CASE WHEN status = 'sent' THEN 1 END)`), 'sent'],
+        [literal(`COUNT(CASE WHEN status = 'delivered' THEN 1 END)`), 'delivered'],
+        [literal(`COUNT(CASE WHEN status = 'read' THEN 1 END)`), 'read'],
+        [literal(`COUNT(CASE WHEN status = 'failed' THEN 1 END)`), 'failed'],
+      ],
+      group: [literal(dateExpr)],
+      order: [[literal(dateExpr), 'ASC']],
+      limit,
+      raw: true,
+    });
+
+    // 2. Message type distribution
+    const byType = await MessageLog.findAll({
+      where,
+      attributes: ['message_type', [fn('COUNT', '*'), 'count']],
+      group: ['message_type'],
+      raw: true,
+    });
+
+    // 3. Top doctors by message count
+    const byDoctor = await MessageLog.findAll({
+      where,
+      attributes: ['doctor_name', [fn('COUNT', '*'), 'count']],
+      group: ['doctor_name'],
+      order: [[fn('COUNT', '*'), 'DESC']],
+      limit: 10,
+      raw: true,
+    });
+
+    res.json({ timeline, byType, byDoctor });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+// — excludes columns that may not exist in older DB tables
 const SAFE_ATTRS = [
   'id', 'message_id', 'doctor_id', 'doctor_name', 'doctor_phone',
   'doctor_birthday', 'doctor_anniversary', 'doctor_clinic_anniversary',
@@ -263,7 +312,7 @@ router.post('/doctors', auth, requireSuperAdmin, async (req, res) => {
   try {
     const { name, phone, clinic_name, birthday, anniversary, clinic_anniversary, is_doctor, is_admin, division, password } = req.body;
     if (!name || !phone) return res.status(400).json({ error: 'Name and phone are required' });
-    const doc = await Doctor.create({ name, phone, clinic_name, birthday: birthday||null, anniversary: anniversary||null, clinic_anniversary: clinic_anniversary||null, is_doctor: is_doctor !== undefined ? is_doctor : true, is_admin: is_admin !== undefined ? is_admin : false, division: division || null, password: password || 'Digi@2026' });
+    const doc = await Doctor.create({ name, phone, clinic_name, birthday: birthday || null, anniversary: anniversary || null, clinic_anniversary: clinic_anniversary || null, is_doctor: is_doctor !== undefined ? is_doctor : true, is_admin: is_admin !== undefined ? is_admin : false, division: division || null, password: password || 'Digi@2026' });
     res.json(doc);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -276,7 +325,7 @@ router.put('/doctors/:id', auth, requireSuperAdmin, async (req, res) => {
     const doc = await Doctor.findByPk(req.params.id);
     if (!doc) return res.status(404).json({ error: 'Not found' });
     const { name, phone, clinic_name, birthday, anniversary, clinic_anniversary, is_doctor, is_admin, division, password } = req.body;
-    await doc.update({ name, phone, clinic_name, birthday: birthday||null, anniversary: anniversary||null, clinic_anniversary: clinic_anniversary||null, is_doctor: is_doctor !== undefined ? is_doctor : doc.is_doctor, is_admin: is_admin !== undefined ? is_admin : doc.is_admin, division: division || null, password: password || doc.password });
+    await doc.update({ name, phone, clinic_name, birthday: birthday || null, anniversary: anniversary || null, clinic_anniversary: clinic_anniversary || null, is_doctor: is_doctor !== undefined ? is_doctor : doc.is_doctor, is_admin: is_admin !== undefined ? is_admin : doc.is_admin, division: division || null, password: password || doc.password });
     res.json(doc);
   } catch (err) {
     res.status(500).json({ error: err.message });
