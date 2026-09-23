@@ -17,6 +17,10 @@ httpClient.interceptors.request.use(config => {
   return config;
 });
 
+function getMessageId(responseData) {
+  return responseData?.messages?.[0]?.id || responseData?.message_id || responseData?.id || null;
+}
+
 async function sendWhatsAppMessage(to, templateName, bodyParameters = [], headerParameters = [], callbackMeta = {}) {
   const components = [];
   if (headerParameters.length > 0) components.push({ type: 'header', parameters: headerParameters });
@@ -40,4 +44,4 @@ async function sendWhatsAppMessage(to, templateName, bodyParameters = [], header
   return response.data;
 }
 
-module.exports = { sendWhatsAppMessage };
+module.exports = { sendWhatsAppMessage, getMessageId };

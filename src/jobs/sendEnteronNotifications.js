@@ -120,6 +120,8 @@ async function startCron() {
     }
   }, { timezone: 'Asia/Kolkata' });
   console.log('[enteron] scheduled: daily at 5:00 PM IST');
+
+  // await sendEnteronNotifications();
 }
 
 if (require.main === module) {
