@@ -121,8 +121,8 @@ async function sendEnteronNotifications() {
 }
 
 async function startCron() {
-  cron.schedule('0 11 * * *', async () => {
-    console.log('[enteron] running scheduled job at 11 AM IST...');
+  cron.schedule('0 17 * * *', async () => {
+    console.log('[enteron] running scheduled job at 5 PM IST...');
     try {
       await sendEnteronNotifications();
     } catch (err) {
