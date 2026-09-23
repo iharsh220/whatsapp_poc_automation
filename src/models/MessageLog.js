@@ -42,8 +42,11 @@ MessageLog.upsertStatus = async function(data) {
     return this.create(data);
   }
 
-  // Prefer the WhatsApp webhook timestamp (Unix epoch string), fall back to now
-  const now = timestamp ? new Date(Number(timestamp) * 1000) : new Date();
+  // WhatsApp timestamp is a Unix epoch string (UTC).
+  // The DB connection timezone (+05:30) converts it to IST on storage.
+  const now = timestamp
+    ? new Date(Number(timestamp) * 1000)
+    : new Date();
   const updateFields = { ...rest };
 
   if (status === 'sent') updateFields.sent_at = now;

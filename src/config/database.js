@@ -10,6 +10,7 @@ const sequelize = new Sequelize(
     port: parseInt(process.env.DB_PORT) || 3306,
     dialect: 'mysql',
     logging: false,
+    timezone: '+05:30',
     pool: {
       max: 10,
       min: 2,

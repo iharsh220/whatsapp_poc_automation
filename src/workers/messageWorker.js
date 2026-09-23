@@ -17,7 +17,6 @@ async function processMessage(message) {
     triggeredAt = new Date().toISOString(),
   } = message;
 
-  // Compact callback data — all fields fit within WhatsApp's 512-char limit
   const callbackMeta = {
     did: doctorId,
     d: doctorName,
