@@ -320,12 +320,27 @@ router.post('/doctors', auth, requireSuperAdmin, async (req, res) => {
 });
 
 // Update doctor
-router.put('/doctors/:id', auth, requireSuperAdmin, async (req, res) => {
+router.put('/doctors/:id', auth, async (req, res) => {
   try {
     const doc = await Doctor.findByPk(req.params.id);
     if (!doc) return res.status(404).json({ error: 'Not found' });
+    if (req.session.type === 'doctor' && req.session.division && doc.division !== req.session.division) {
+      return res.status(403).json({ error: 'Access denied: doctor belongs to a different division' });
+    }
     const { name, phone, clinic_name, birthday, anniversary, clinic_anniversary, is_doctor, is_admin, division, password } = req.body;
-    await doc.update({ name, phone, clinic_name, birthday: birthday || null, anniversary: anniversary || null, clinic_anniversary: clinic_anniversary || null, is_doctor: is_doctor !== undefined ? is_doctor : doc.is_doctor, is_admin: is_admin !== undefined ? is_admin : doc.is_admin, division: division || null, password: password || doc.password });
+    const isSuperAdmin = req.session.type === 'superadmin';
+    await doc.update({
+      name: name || doc.name,
+      phone: phone || doc.phone,
+      clinic_name: clinic_name || doc.clinic_name,
+      birthday: birthday || null,
+      anniversary: anniversary || null,
+      clinic_anniversary: clinic_anniversary || null,
+      is_doctor: is_doctor !== undefined ? is_doctor : doc.is_doctor,
+      is_admin: isSuperAdmin ? (is_admin !== undefined ? is_admin : doc.is_admin) : doc.is_admin,
+      division: isSuperAdmin ? (division || null) : doc.division,
+      password: isSuperAdmin ? (password || doc.password) : doc.password,
+    });
     res.json(doc);
   } catch (err) {
     res.status(500).json({ error: err.message });

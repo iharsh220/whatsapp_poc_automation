@@ -345,10 +345,10 @@
       <div class="mfield"><label>Birthday</label><input type="date" id="mBirthday"/></div>
       <div class="mfield"><label>Anniversary</label><input type="date" id="mAnniversary"/></div>
       <div class="mfield"><label>Clinic Anniversary</label><input type="date" id="mClinicAnniv"/></div>
-      <div class="mfield"><label>Division</label><input type="text" id="mDivision" placeholder="e.g. Ortho, Cardiology"/></div>
       <div class="mfield" style="align-items:flex-end"><label><input type="checkbox" id="mIsDoctor" style="width:auto;height:auto"/> Is Doctor</label></div>
-      <div class="mfield"><label>Password</label><input type="text" id="mPassword" placeholder="Default: Digi@2026"/></div>
-      <div class="mfield" style="align-items:flex-end"><label><input type="checkbox" id="mIsAdmin" style="width:auto;height:auto"/> Is Admin</label></div>
+      <div class="mfield admin-only"><label>Division</label><input type="text" id="mDivision" placeholder="e.g. Ortho, Cardiology"/></div>
+      <div class="mfield admin-only" style="align-items:flex-end"><label><input type="checkbox" id="mIsAdmin" style="width:auto;height:auto"/> Is Admin</label></div>
+      <div class="mfield admin-only"><label>Password</label><input type="text" id="mPassword" placeholder="Default: Digi@2026"/></div>
     </div>
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
