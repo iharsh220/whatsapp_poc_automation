@@ -93,10 +93,10 @@ router.get('/stats', auth, async (req, res) => {
     const where = buildWhere(req.query, req.session);
     const [total, sent, delivered, read, failed] = await Promise.all([
       MessageLog.count({ where }),
-      MessageLog.count({ where: { ...where, status: 'sent' } }),
-      MessageLog.count({ where: { ...where, status: 'delivered' } }),
-      MessageLog.count({ where: { ...where, status: 'read' } }),
-      MessageLog.count({ where: { ...where, status: 'failed' } }),
+      MessageLog.count({ where: { ...where, sent_at: { [Op.ne]: null } } }),
+      MessageLog.count({ where: { ...where, delivered_at: { [Op.ne]: null } } }),
+      MessageLog.count({ where: { ...where, read_at: { [Op.ne]: null } } }),
+      MessageLog.count({ where: { ...where, failed_at: { [Op.ne]: null } } }),
     ]);
 
     const types = ['birthday', 'anniversary', 'clinic_anniversary'];
@@ -104,10 +104,10 @@ router.get('/stats', auth, async (req, res) => {
     for (const t of types) {
       byType[t] = {
         total: await MessageLog.count({ where: { ...where, message_type: t } }),
-        sent: await MessageLog.count({ where: { ...where, message_type: t, status: 'sent' } }),
-        delivered: await MessageLog.count({ where: { ...where, message_type: t, status: 'delivered' } }),
-        read: await MessageLog.count({ where: { ...where, message_type: t, status: 'read' } }),
-        failed: await MessageLog.count({ where: { ...where, message_type: t, status: 'failed' } }),
+        sent: await MessageLog.count({ where: { ...where, message_type: t, sent_at: { [Op.ne]: null } } }),
+        delivered: await MessageLog.count({ where: { ...where, message_type: t, delivered_at: { [Op.ne]: null } } }),
+        read: await MessageLog.count({ where: { ...where, message_type: t, read_at: { [Op.ne]: null } } }),
+        failed: await MessageLog.count({ where: { ...where, message_type: t, failed_at: { [Op.ne]: null } } }),
       };
     }
 
@@ -132,10 +132,10 @@ router.get('/stats/chart', auth, async (req, res) => {
       where,
       attributes: [
         [literal(dateExpr), 'date'],
-        [literal(`COUNT(CASE WHEN status = 'sent' THEN 1 END)`), 'sent'],
-        [literal(`COUNT(CASE WHEN status = 'delivered' THEN 1 END)`), 'delivered'],
-        [literal(`COUNT(CASE WHEN status = 'read' THEN 1 END)`), 'read'],
-        [literal(`COUNT(CASE WHEN status = 'failed' THEN 1 END)`), 'failed'],
+        [literal(`COUNT(CASE WHEN sent_at IS NOT NULL THEN 1 END)`), 'sent'],
+        [literal(`COUNT(CASE WHEN delivered_at IS NOT NULL THEN 1 END)`), 'delivered'],
+        [literal(`COUNT(CASE WHEN read_at IS NOT NULL THEN 1 END)`), 'read'],
+        [literal(`COUNT(CASE WHEN failed_at IS NOT NULL THEN 1 END)`), 'failed'],
       ],
       group: [literal(dateExpr)],
       order: [[literal(dateExpr), 'ASC']],
@@ -170,10 +170,11 @@ router.get('/stats/chart', auth, async (req, res) => {
 const SAFE_ATTRS = [
   'id', 'message_id', 'doctor_id', 'doctor_name', 'doctor_phone',
   'doctor_birthday', 'doctor_anniversary', 'doctor_clinic_anniversary',
-  'message_type', 'template_name', 'recipient_id', 'status',
+  'message_type', 'template_name', 'recipient_id',
   'billable', 'category', 'timestamp',
   'error_code', 'error_title', 'error_message', 'error_details',
   'division', 'doctor_is_doctor', 'createdAt', 'updatedAt',
+  'sent_at', 'delivered_at', 'read_at', 'failed_at',
 ];
 
 router.get('/messages', auth, async (req, res) => {
@@ -234,7 +235,12 @@ function buildWhere(query, session) {
   if (query.recipient_id) where.recipient_id = { [Op.like]: `%${query.recipient_id}%` };
   if (query.message_type) where.message_type = query.message_type;
   if (query.template_name) where.template_name = { [Op.like]: `%${query.template_name}%` };
-  if (query.status) where.status = query.status;
+  // status filter maps to timestamp columns (status column removed)
+  if (query.status) {
+    const colMap = { sent: 'sent_at', delivered: 'delivered_at', read: 'read_at', failed: 'failed_at' };
+    const col = colMap[query.status];
+    if (col) where[col] = { [Op.ne]: null };
+  }
   if (query.date_from || query.date_to) {
     where.createdAt = {};
     if (query.date_from) where.createdAt[Op.gte] = new Date(query.date_from);

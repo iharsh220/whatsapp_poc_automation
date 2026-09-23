@@ -46,9 +46,9 @@ router.post('/status_callback', async (req, res) => {
       const meta = expandMeta(cb);
       const firstError = s.errors?.[0] || {};
       const errorCode = firstError.code ? Number(firstError.code) : null;
-      // console.log(meta);
-      // Save to DB
-      await MessageLog.safeCreate({
+
+      // Upsert one row per message_id, setting the appropriate timestamp column
+      await MessageLog.upsertStatus({
         message_id: s.id,
         doctor_id: meta.doctorId,
         doctor_name: meta.doctorName,

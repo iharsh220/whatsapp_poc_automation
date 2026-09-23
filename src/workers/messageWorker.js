@@ -1,9 +1,8 @@
 require('dotenv').config();
 const redis = require('../config/redis');
 const { popFromQueue, popDueRetries, MAX_RETRIES } = require('../services/queueService');
-const { sendWhatsAppMessage } = require('../services/whatsappService');
+const { sendWhatsAppMessage, getMessageId } = require('../services/whatsappService');
 const { isSameDay } = require('../services/dateUtils');
-const MessageLog = require('../models/MessageLog');
 const sequelize = require('../config/database');
 
 const CONCURRENCY = parseInt(process.env.WORKER_CONCURRENCY) || 5;
@@ -36,9 +35,10 @@ async function processMessage(message) {
   };
 
   try {
-    await sendWhatsAppMessage(to, templateName, bodyParameters, headerParameters, callbackMeta);
+    const apiResponse = await sendWhatsAppMessage(to, templateName, bodyParameters, headerParameters, callbackMeta);
+    const messageId = getMessageId(apiResponse);
     const label = retryCount > 0 ? `retry-${retryCount}` : 'sent';
-    console.log(`[${label}] ${type} → ${to} (${doctorName})`);
+    console.log(`[${label}] ${type} → ${to} (${doctorName}) | webhook_message_id:${messageId || 'missing'}`);
   } catch (err) {
     const status = err.response?.status || 'N/A';
     const errData = err.response?.data;
@@ -50,51 +50,6 @@ async function processMessage(message) {
     if (errData && !errData.errors) {
       console.error(`[send-error-details] ${JSON.stringify(errData).slice(0, 500)}`);
     }
-
-    if (status === 400) {
-      await MessageLog.safeCreate({
-        doctor_id: doctorId || null,
-        doctor_name: doctorName || null,
-        doctor_phone: doctorPhone || null,
-        doctor_birthday: doctorBirthday || null,
-        doctor_anniversary: doctorAnniversary || null,
-        doctor_clinic_anniversary: doctorClinicAnniversary || null,
-        doctor_clinic_name: doctorClinicName || null,
-        division: doctorDivision ?? null,
-        doctor_is_doctor: doctorIsDoctor !== undefined ? doctorIsDoctor : null,
-        message_type: type || null,
-        template_name: templateName || null,
-        recipient_id: to ? to.replace('+91', '') : null,
-        status: 'failed',
-        retry_count: retryCount,
-        error_code: errorCode,
-        error_title: firstError.title || `HTTP ${status}`,
-        error_message: errDetail,
-        error_details: JSON.stringify(errData || {}).slice(0, 1000),
-      });
-      return;
-    }
-
-    await MessageLog.safeCreate({
-      doctor_id: doctorId || null,
-      doctor_name: doctorName || null,
-      doctor_phone: doctorPhone || null,
-      doctor_birthday: doctorBirthday || null,
-      doctor_anniversary: doctorAnniversary || null,
-      doctor_clinic_anniversary: doctorClinicAnniversary || null,
-      doctor_clinic_name: doctorClinicName || null,
-      division: doctorDivision ?? null,
-      doctor_is_doctor: doctorIsDoctor !== undefined ? doctorIsDoctor : null,
-      message_type: type || null,
-      template_name: templateName || null,
-      recipient_id: to ? to.replace('+91', '') : null,
-      status: 'failed',
-      retry_count: retryCount,
-      error_code: errorCode,
-      error_title: firstError.title || null,
-      error_message: errDetail,
-      error_details: firstError.error_data?.details || null,
-    });
   }
 }
 

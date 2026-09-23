@@ -1,5 +1,6 @@
 require('dotenv').config();
 const cron = require('node-cron');
+const { Op } = require('sequelize');
 const sequelize = require('../config/database');
 const EnteronDoctor = require('../models/EnteronDoctor');
 const MessageLog = require('../models/MessageLog');
@@ -33,13 +34,13 @@ async function sendEnteronNotifications() {
         continue;
       }
 
-      // Check if already sent (deduplication)
+      // Check if already sent (deduplication — webhook creates the row with sent_at)
       const existing = await MessageLog.findOne({
         where: {
           doctor_id: doctor.id,
           message_type: MESSAGE_TYPE,
           template_name: TEMPLATE_NAME,
-          status: 'sent',
+          sent_at: { [Op.ne]: null },
         },
       });
       if (existing) {
@@ -67,18 +68,6 @@ async function sendEnteronNotifications() {
           callbackMeta
         );
 
-        await MessageLog.safeCreate({
-          doctor_id: doctor.id,
-          doctor_name: doctor.doctor_name,
-          doctor_phone: doctor.contact,
-          division: doctor.division,
-          message_type: MESSAGE_TYPE,
-          template_name: TEMPLATE_NAME,
-          recipient_id: phone.replace('+91', ''),
-          status: 'sent',
-          retry_count: 0,
-        });
-
         console.log(`[enteron] Sent to ${doctor.doctor_name} (${phone})`);
         sent++;
       } catch (err) {
@@ -90,6 +79,7 @@ async function sendEnteronNotifications() {
 
         console.error(`[enteron] Failed ${doctor.doctor_name} (${phone}) http:${status} code:${errorCode} - ${errDetail}`);
 
+        // Log failure — webhook may also deliver a 'failed' status later
         await MessageLog.safeCreate({
           doctor_id: doctor.id,
           doctor_name: doctor.doctor_name,
@@ -98,7 +88,7 @@ async function sendEnteronNotifications() {
           message_type: MESSAGE_TYPE,
           template_name: TEMPLATE_NAME,
           recipient_id: phone.replace('+91', ''),
-          status: 'failed',
+          failed_at: new Date(),
           retry_count: 0,
           error_code: errorCode,
           error_title: firstError.title || `HTTP ${status}`,

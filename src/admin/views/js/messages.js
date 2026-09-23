@@ -95,20 +95,23 @@ function renderRows(rows) {
     return;
   }
   const tl = { birthday: 'Birthday', anniversary: 'Anniversary', clinic_anniversary: 'Clinic Anniv.' };
-  tbody.innerHTML = rows.map(r => `
+  tbody.innerHTML = rows.map(r => {
+    const status = r.sent_at ? 'sent' : (r.failed_at ? 'failed' : '—');
+    return `
     <tr>
       <td class="dim">${r.id}</td>
       <td><div style="font-weight:600">${r.doctor_name || '—'}</div></td>
       <td class="dim">${r.doctor_phone || '—'}</td>
       <td><span class="badge ${r.message_type || ''}">${tl[r.message_type] || r.message_type || '—'}</span></td>
       <td class="dim" style="font-size:12px">${r.template_name || '—'}</td>
-      <td><span class="badge ${r.status || ''}">${r.status || '—'}</span></td>
+      <td><span class="badge ${status}">${status}</span></td>
       <td class="dim" style="font-size:12px">${fmtDate(r.createdAt)}</td>
       <td class="dim" style="font-size:12px">${r.error_code || '—'}</td>
       <td style="font-size:11px;color:#DC2626">${r.error_title
         ? `<span title="${r.error_message || ''}">${r.error_title}</span>`
         : '<span style="color:#94A3B8">—</span>'}</td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 function exportData(fmt) {

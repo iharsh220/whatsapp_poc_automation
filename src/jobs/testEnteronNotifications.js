@@ -1,6 +1,5 @@
 require('dotenv').config();
 const sequelize = require('../config/database');
-const MessageLog = require('../models/MessageLog');
 const { sendWhatsAppMessage } = require('../services/whatsappService');
 const { formatPhone } = require('../services/dateUtils');
 
@@ -47,18 +46,6 @@ async function sendTestNotifications() {
           callbackMeta
         );
 
-        await MessageLog.safeCreate({
-          doctor_id: 0,
-          doctor_name: doctor.name,
-          doctor_phone: doctor.contact,
-          division: doctor.division,
-          message_type: MESSAGE_TYPE,
-          template_name: TEMPLATE_NAME,
-          recipient_id: phone.replace('+91', ''),
-          sent_at: new Date(),
-          retry_count: 0,
-        });
-
         console.log(`[test] Sent to ${doctor.name} (${phone})`);
         sent++;
       } catch (err) {
@@ -69,21 +56,6 @@ async function sendTestNotifications() {
         const errDetail = firstError.title || firstError.message || err.message;
 
         console.error(`[test] Failed ${doctor.name} (${phone}) http:${status} code:${errorCode} - ${errDetail}`);
-
-        await MessageLog.safeCreate({
-          doctor_id: 0,
-          doctor_name: doctor.name,
-          doctor_phone: doctor.contact,
-          division: doctor.division,
-          message_type: MESSAGE_TYPE,
-          template_name: TEMPLATE_NAME,
-          recipient_id: phone.replace('+91', ''),
-          failed_at: new Date(),
-          retry_count: 0,
-          error_code: errorCode,
-          error_description: errDetail,
-        });
-
         failed++;
       }
 
