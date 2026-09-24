@@ -91,12 +91,14 @@ async function loadMessages(page) {
 function renderRows(rows) {
   const tbody = document.getElementById('tBody');
   if (!rows.length) {
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="9">No records found</td></tr>';
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="10">No records found</td></tr>';
     return;
   }
   const tl = { birthday: 'Birthday', anniversary: 'Anniversary', clinic_anniversary: 'Clinic Anniv.' };
   tbody.innerHTML = rows.map(r => {
-    const status = r.sent_at ? 'sent' : (r.failed_at ? 'failed' : '—');
+    const sent = r.sent_at ? fmtDate(r.sent_at) : '—';
+    const delivered = r.delivered_at ? fmtDate(r.delivered_at) : '—';
+    const read = r.read_at ? fmtDate(r.read_at) : '—';
     return `
     <tr>
       <td class="dim">${r.id}</td>
@@ -104,7 +106,9 @@ function renderRows(rows) {
       <td class="dim">${r.doctor_phone || '—'}</td>
       <td><span class="badge ${r.message_type || ''}">${tl[r.message_type] || r.message_type || '—'}</span></td>
       <td class="dim" style="font-size:12px">${r.template_name || '—'}</td>
-      <td><span class="badge ${status}">${status}</span></td>
+      <td class="dim" style="font-size:12px">${sent}</td>
+      <td class="dim" style="font-size:12px">${delivered}</td>
+      <td class="dim" style="font-size:12px">${read}</td>
       <td class="dim" style="font-size:12px">${fmtDate(r.createdAt)}</td>
       <td class="dim" style="font-size:12px">${r.error_code || '—'}</td>
       <td style="font-size:11px;color:#DC2626">${r.error_title

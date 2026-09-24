@@ -1,367 +1,676 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Admin</title>
-<link rel="stylesheet" href="css/base.css"/>
-<link rel="stylesheet" href="css/components.css"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin</title>
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
 </head>
+
 <body>
 
-<!-- ── LOGIN ── -->
-<div id="loginPage">
-  <div class="login-wrap">
-    <div class="login-brand">
-      <div class="logo">
-        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-      </div>
-      <h1>Automation Dashboard</h1>
-      <p>WhatsApp Doctors Automation</p>
-    </div>
-    <div class="field">
-      <label>Username</label>
-      <input type="text" id="lu" placeholder="Enter username" autocomplete="username"/>
-    </div>
-    <div class="field">
-      <label>Password</label>
-      <div class="input-wrap">
-        <input type="password" id="lp" placeholder="Enter password" autocomplete="current-password"/>
-        <button class="eye-btn" type="button" onclick="togglePassword()" title="Show/hide password">
-          <svg id="eyeIcon" viewBox="0 0 24 24">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-            <circle cx="12" cy="12" r="3"/>
+  <!-- ── LOGIN ── -->
+  <div id="loginPage">
+    <div class="login-wrap">
+      <div class="login-brand">
+        <div class="logo">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
           </svg>
-        </button>
-      </div>
-    </div>
-    <button class="btn-signin" onclick="doLogin()">Sign In</button>
-    <div class="login-err" id="lerr">Invalid username or password</div>
-  </div>
-</div>
-
-<!-- ── DASHBOARD ── -->
-<div id="dashboard">
-
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <div class="sb-logo">
-      <div class="brand">
-        <div class="b-icon">
-          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         </div>
-        <div>
-          <div class="b-name">Automation Dashboard</div>
-          <div class="b-sub">Admin Panel</div>
-        </div>
+        <h1>Automation Dashboard</h1>
+        <p>WhatsApp Doctors Automation</p>
       </div>
-    </div>
-    <div class="sb-nav">
-      <div class="nav-section">Main</div>
-      <div class="nav-link active" id="nav-dashboard" onclick="showPage('dashboard')">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-        Dashboard
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="lu" placeholder="Enter username" autocomplete="username" />
       </div>
-      <div class="nav-link" id="nav-messages" onclick="showPage('messages')">
-        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        Messages
-      </div>
-      <div class="nav-link" id="nav-users" onclick="showPage('users')">
-        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        Users
-      </div>
-    </div>
-    <div class="sb-footer">
-      <div class="user-row">
-        <div class="user-av">A</div>
-        <div>
-          <div class="user-name">Admin</div>
-          <div class="user-role">Super Admin</div>
-        </div>
-        <button class="btn-out" onclick="doLogout()" title="Logout">
-          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MAIN -->
-  <div class="main">
-
-    <!-- DASHBOARD PAGE -->
-    <div id="pageDashboard">
-      <div class="topbar">
-        <div>
-          <div class="page-title">Dashboard</div>
-          <div class="page-sub">WhatsApp message analytics</div>
-        </div>
-        <div class="topbar-right">
-          <button class="btn btn-csv" onclick="exportData('csv')">
-            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            CSV
-          </button>
-          <button class="btn btn-xls" onclick="exportData('excel')">
-            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Excel
+      <div class="field">
+        <label>Password</label>
+        <div class="input-wrap">
+          <input type="password" id="lp" placeholder="Enter password" autocomplete="current-password" />
+          <button class="eye-btn" type="button" onclick="togglePassword()" title="Show/hide password">
+            <svg id="eyeIcon" viewBox="0 0 24 24">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
           </button>
         </div>
       </div>
+      <button class="btn-signin" onclick="doLogin()">Sign In</button>
+      <div class="login-err" id="lerr">Invalid username or password</div>
+    </div>
+  </div>
 
-      <div class="kpi-row four">
+  <!-- ── DASHBOARD ── -->
+  <div id="dashboard">
 
-        <div class="kpi"><div class="kpi-top"><div class="kpi-icon sent"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div><span class="kpi-pct up" id="pSent">—</span></div><div class="kpi-val" id="kSent">—</div><div class="kpi-lbl">Sent</div><div class="kpi-bar sent"></div></div>
-        <div class="kpi"><div class="kpi-top"><div class="kpi-icon delivered"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span class="kpi-pct up" id="pDelivered">—</span></div><div class="kpi-val" id="kDelivered">—</div><div class="kpi-lbl">Delivered</div><div class="kpi-bar delivered"></div></div>
-        <div class="kpi"><div class="kpi-top"><div class="kpi-icon read"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><span class="kpi-pct up" id="pRead">—</span></div><div class="kpi-val" id="kRead">—</div><div class="kpi-lbl">Read</div><div class="kpi-bar read"></div></div>
-        <div class="kpi"><div class="kpi-top"><div class="kpi-icon failed"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><span class="kpi-pct down" id="pFailed">—</span></div><div class="kpi-val" id="kFailed">—</div><div class="kpi-lbl">Failed</div><div class="kpi-bar failed"></div></div>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sb-logo">
+        <div class="brand">
+          <div class="b-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
+          </div>
+          <div>
+            <div class="b-name">Automation Dashboard</div>
+            <div class="b-sub">Admin Panel</div>
+          </div>
+        </div>
       </div>
+      <div class="sb-nav">
+        <div class="nav-section">Main</div>
+        <div class="nav-link active" id="nav-dashboard" onclick="showPage('dashboard')">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+          </svg>
+          Dashboard
+        </div>
+        <div class="nav-link" id="nav-messages" onclick="showPage('messages')">
+          <svg viewBox="0 0 24 24">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          Messages
+        </div>
+        <div class="nav-link" id="nav-users" onclick="showPage('users')">
+          <svg viewBox="0 0 24 24">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+          Users
+        </div>
+      </div>
+      <div class="sb-footer">
+        <div class="user-row">
+          <div class="user-av">A</div>
+          <div>
+            <div class="user-name">Admin</div>
+            <div class="user-role">Super Admin</div>
+          </div>
+          <button class="btn-out" onclick="doLogout()" title="Logout">
+            <svg viewBox="0 0 24 24">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
 
-      <div class="type-row">
-        <div class="tcard">
-          <div class="tcard-head"><div class="tcard-label">Birthday</div><span class="tcard-total birthday" id="btTot">0 total</span></div>
-          <div class="tcard-stats">
-            <div class="ts s"><div class="ts-val" id="btS">—</div><div class="ts-lbl">Sent</div></div>
-            <div class="ts d"><div class="ts-val" id="btD">—</div><div class="ts-lbl">Delivered</div></div>
-            <div class="ts r"><div class="ts-val" id="btR">—</div><div class="ts-lbl">Read</div></div>
-            <div class="ts f"><div class="ts-val" id="btF">—</div><div class="ts-lbl">Failed</div></div>
+    <!-- MAIN -->
+    <div class="main">
+
+      <!-- DASHBOARD PAGE -->
+      <div id="pageDashboard">
+        <div class="topbar">
+          <div>
+            <div class="page-title">Dashboard</div>
+            <div class="page-sub">WhatsApp message analytics</div>
+          </div>
+          <div class="topbar-right">
+            <button class="btn btn-csv" onclick="exportData('csv')">
+              <svg viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              CSV
+            </button>
+            <button class="btn btn-xls" onclick="exportData('excel')">
+              <svg viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Excel
+            </button>
           </div>
         </div>
-        <div class="tcard">
-          <div class="tcard-head"><div class="tcard-label">Anniversary</div><span class="tcard-total anniversary" id="anTot">0 total</span></div>
-          <div class="tcard-stats">
-            <div class="ts s"><div class="ts-val" id="anS">—</div><div class="ts-lbl">Sent</div></div>
-            <div class="ts d"><div class="ts-val" id="anD">—</div><div class="ts-lbl">Delivered</div></div>
-            <div class="ts r"><div class="ts-val" id="anR">—</div><div class="ts-lbl">Read</div></div>
-            <div class="ts f"><div class="ts-val" id="anF">—</div><div class="ts-lbl">Failed</div></div>
+
+        <div class="kpi-row four">
+
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon sent"><svg viewBox="0 0 24 24">
+                  <line x1="22" y1="2" x2="11" y2="13" />
+                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                </svg></div><span class="kpi-pct up" id="pSent">—</span>
+            </div>
+            <div class="kpi-val" id="kSent">—</div>
+            <div class="kpi-lbl">Sent</div>
+            <div class="kpi-bar sent"></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon delivered"><svg viewBox="0 0 24 24">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg></div><span class="kpi-pct up" id="pDelivered">—</span>
+            </div>
+            <div class="kpi-val" id="kDelivered">—</div>
+            <div class="kpi-lbl">Delivered</div>
+            <div class="kpi-bar delivered"></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon read"><svg viewBox="0 0 24 24">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg></div><span class="kpi-pct up" id="pRead">—</span>
+            </div>
+            <div class="kpi-val" id="kRead">—</div>
+            <div class="kpi-lbl">Read</div>
+            <div class="kpi-bar read"></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon failed"><svg viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="15" y1="9" x2="9" y2="15" />
+                  <line x1="9" y1="9" x2="15" y2="15" />
+                </svg></div><span class="kpi-pct down" id="pFailed">—</span>
+            </div>
+            <div class="kpi-val" id="kFailed">—</div>
+            <div class="kpi-lbl">Failed</div>
+            <div class="kpi-bar failed"></div>
           </div>
         </div>
-        <div class="tcard">
-          <div class="tcard-head"><div class="tcard-label">Clinic Anniversary</div><span class="tcard-total clinic" id="caTot">0 total</span></div>
-          <div class="tcard-stats">
-            <div class="ts s"><div class="ts-val" id="caS">—</div><div class="ts-lbl">Sent</div></div>
-            <div class="ts d"><div class="ts-val" id="caD">—</div><div class="ts-lbl">Delivered</div></div>
-            <div class="ts r"><div class="ts-val" id="caR">—</div><div class="ts-lbl">Read</div></div>
-            <div class="ts f"><div class="ts-val" id="caF">—</div><div class="ts-lbl">Failed</div></div>
+
+        <div class="type-row">
+          <div class="tcard">
+            <div class="tcard-head">
+              <div class="tcard-label">Birthday</div><span class="tcard-total birthday" id="btTot">0 total</span>
+            </div>
+            <div class="tcard-stats">
+              <div class="ts s">
+                <div class="ts-val" id="btS">—</div>
+                <div class="ts-lbl">Sent</div>
+              </div>
+              <div class="ts d">
+                <div class="ts-val" id="btD">—</div>
+                <div class="ts-lbl">Delivered</div>
+              </div>
+              <div class="ts r">
+                <div class="ts-val" id="btR">—</div>
+                <div class="ts-lbl">Read</div>
+              </div>
+              <div class="ts f">
+                <div class="ts-val" id="btF">—</div>
+                <div class="ts-lbl">Failed</div>
+              </div>
+            </div>
+          </div>
+          <div class="tcard">
+            <div class="tcard-head">
+              <div class="tcard-label">Anniversary</div><span class="tcard-total anniversary" id="anTot">0 total</span>
+            </div>
+            <div class="tcard-stats">
+              <div class="ts s">
+                <div class="ts-val" id="anS">—</div>
+                <div class="ts-lbl">Sent</div>
+              </div>
+              <div class="ts d">
+                <div class="ts-val" id="anD">—</div>
+                <div class="ts-lbl">Delivered</div>
+              </div>
+              <div class="ts r">
+                <div class="ts-val" id="anR">—</div>
+                <div class="ts-lbl">Read</div>
+              </div>
+              <div class="ts f">
+                <div class="ts-val" id="anF">—</div>
+                <div class="ts-lbl">Failed</div>
+              </div>
+            </div>
+          </div>
+          <div class="tcard">
+            <div class="tcard-head">
+              <div class="tcard-label">Clinic Anniversary</div><span class="tcard-total clinic" id="caTot">0
+                total</span>
+            </div>
+            <div class="tcard-stats">
+              <div class="ts s">
+                <div class="ts-val" id="caS">—</div>
+                <div class="ts-lbl">Sent</div>
+              </div>
+              <div class="ts d">
+                <div class="ts-val" id="caD">—</div>
+                <div class="ts-lbl">Delivered</div>
+              </div>
+              <div class="ts r">
+                <div class="ts-val" id="caR">—</div>
+                <div class="ts-lbl">Read</div>
+              </div>
+              <div class="ts f">
+                <div class="ts-val" id="caF">—</div>
+                <div class="ts-lbl">Failed</div>
+              </div>
+            </div>
           </div>
         </div>
-       </div>
 
-       <!-- CHART FILTERS -->
-       <div class="chart-filters-bar">
-         <select id="chartType" class="inline-select" onchange="onChartFilterChange()">
-           <option value="">All Types</option>
-           <option value="birthday">Birthday</option>
-           <option value="anniversary">Anniversary</option>
-           <option value="clinic_anniversary">Clinic Anniv</option>
-         </select>
-         <input type="date" id="chartFromDate" class="inline-input" style="width:auto;padding:6px 10px" onchange="onChartFilterChange()"/>
-         <input type="date" id="chartToDate" class="inline-input" style="width:auto;padding:6px 10px" onchange="onChartFilterChange()"/>
-         <input type="text" id="chartDoctor" class="inline-input" placeholder="Doctor name..." style="width:160px" oninput="onChartFilterChange()"/>
-         <select id="chartGroupBy" class="inline-select" onchange="onChartFilterChange()">
-           <option value="day">Group: Day</option>
-           <option value="month">Group: Month</option>
-         </select>
-       </div>
+        <!-- CHART FILTERS -->
+        <div class="chart-filters-bar">
+          <select id="chartType" class="inline-select" onchange="onChartFilterChange()">
+            <option value="">All Types</option>
+            <option value="birthday">Birthday</option>
+            <option value="anniversary">Anniversary</option>
+            <option value="clinic_anniversary">Clinic Anniv</option>
+          </select>
+          <input type="date" id="chartFromDate" class="inline-input" style="width:auto;padding:6px 10px"
+            onchange="onChartFilterChange()" />
+          <input type="date" id="chartToDate" class="inline-input" style="width:auto;padding:6px 10px"
+            onchange="onChartFilterChange()" />
+          <input type="text" id="chartDoctor" class="inline-input" placeholder="Doctor name..." style="width:160px"
+            oninput="onChartFilterChange()" />
+          <select id="chartGroupBy" class="inline-select" onchange="onChartFilterChange()">
+            <option value="day">Group: Day</option>
+            <option value="month">Group: Month</option>
+          </select>
+        </div>
 
-       <!-- CHARTS -->
-       <div class="charts-section">
-         <div class="chart-card">
-           <div class="chart-card-head">Messages Over Time</div>
+        <!-- CHARTS -->
+        <div class="charts-section">
+          <div class="chart-card">
+            <div class="chart-card-head">Messages Over Time</div>
             <canvas id="chartTimeline" height="400"></canvas>
-         </div>
-         <div class="chart-row">
-           <div class="chart-card">
-             <div class="chart-card-head">By Message Type</div>
+          </div>
+          <div class="chart-row">
+            <div class="chart-card">
+              <div class="chart-card-head">By Message Type</div>
               <canvas id="chartTypeDist" height="200"></canvas>
-           </div>
-           <div class="chart-card">
-             <div class="chart-card-head">Top Doctors</div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-card-head">Top Doctors</div>
               <canvas id="chartDoctor" height="200"></canvas>
-           </div>
-         </div>
-       </div>
-     </div>
-
-    <!-- MESSAGES PAGE -->
-    <div id="pageMessages" style="display:none">
-      <div class="topbar">
-        <div><div class="page-title">Messages</div><div class="page-sub">All WhatsApp message logs</div></div>
-        <div class="topbar-right">
-          <button class="btn btn-filter" id="btnFilter" onclick="toggleFilter()">
-            <svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-            Filters
-            <span class="filter-dot" id="filterDot"></span>
-          </button>
-          <button class="btn btn-csv" onclick="exportData('csv')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>CSV</button>
-          <button class="btn btn-xls" onclick="exportData('excel')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Excel</button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="kpi-row">
-        <div class="kpi"><div class="kpi-top"><div class="kpi-icon total"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg></div><span class="kpi-pct neutral">All</span></div><div class="kpi-val" id="mkTotal">—</div><div class="kpi-lbl">Total Messages</div><div class="kpi-bar total"></div></div>
-        <div class="kpi"><div class="kpi-top"><div class="kpi-icon sent"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div><span class="kpi-pct up" id="mpSent">—</span></div><div class="kpi-val" id="mkSent">—</div><div class="kpi-lbl">Sent</div><div class="kpi-bar sent"></div></div>
-        <div class="kpi"><div class="kpi-top"><div class="kpi-icon delivered"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span class="kpi-pct up" id="mpDelivered">—</span></div><div class="kpi-val" id="mkDelivered">—</div><div class="kpi-lbl">Delivered</div><div class="kpi-bar delivered"></div></div>
-        <div class="kpi"><div class="kpi-top"><div class="kpi-icon read"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><span class="kpi-pct up" id="mpRead">—</span></div><div class="kpi-val" id="mkRead">—</div><div class="kpi-lbl">Read</div><div class="kpi-bar read"></div></div>
-        <div class="kpi"><div class="kpi-top"><div class="kpi-icon failed"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><span class="kpi-pct down" id="mpFailed">—</span></div><div class="kpi-val" id="mkFailed">—</div><div class="kpi-lbl">Failed</div><div class="kpi-bar failed"></div></div>
+      <!-- MESSAGES PAGE -->
+      <div id="pageMessages" style="display:none">
+        <div class="topbar">
+          <div>
+            <div class="page-title">Messages</div>
+            <div class="page-sub">All WhatsApp message logs</div>
+          </div>
+          <div class="topbar-right">
+            <button class="btn btn-filter" id="btnFilter" onclick="toggleFilter()">
+              <svg viewBox="0 0 24 24">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+              </svg>
+              Filters
+              <span class="filter-dot" id="filterDot"></span>
+            </button>
+            <button class="btn btn-csv" onclick="exportData('csv')"><svg viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>CSV</button>
+            <button class="btn btn-xls" onclick="exportData('excel')"><svg viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>Excel</button>
+          </div>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon total"><svg viewBox="0 0 24 24">
+                  <path
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z" />
+                </svg></div><span class="kpi-pct neutral">All</span>
+            </div>
+            <div class="kpi-val" id="mkTotal">—</div>
+            <div class="kpi-lbl">Total Messages</div>
+            <div class="kpi-bar total"></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon sent"><svg viewBox="0 0 24 24">
+                  <line x1="22" y1="2" x2="11" y2="13" />
+                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                </svg></div><span class="kpi-pct up" id="mpSent">—</span>
+            </div>
+            <div class="kpi-val" id="mkSent">—</div>
+            <div class="kpi-lbl">Sent</div>
+            <div class="kpi-bar sent"></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon delivered"><svg viewBox="0 0 24 24">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg></div><span class="kpi-pct up" id="mpDelivered">—</span>
+            </div>
+            <div class="kpi-val" id="mkDelivered">—</div>
+            <div class="kpi-lbl">Delivered</div>
+            <div class="kpi-bar delivered"></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon read"><svg viewBox="0 0 24 24">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg></div><span class="kpi-pct up" id="mpRead">—</span>
+            </div>
+            <div class="kpi-val" id="mkRead">—</div>
+            <div class="kpi-lbl">Read</div>
+            <div class="kpi-bar read"></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon failed"><svg viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="15" y1="9" x2="9" y2="15" />
+                  <line x1="9" y1="9" x2="15" y2="15" />
+                </svg></div><span class="kpi-pct down" id="mpFailed">—</span>
+            </div>
+            <div class="kpi-val" id="mkFailed">—</div>
+            <div class="kpi-lbl">Failed</div>
+            <div class="kpi-bar failed"></div>
+          </div>
+        </div>
+
+        <div class="filter-drawer" id="filterDrawer">
+          <div class="fd-grid">
+            <div class="fd-field"><label>Date From</label><input type="date" id="fFrom" oninput="onFilterChange()" />
+            </div>
+            <div class="fd-field"><label>Date To</label><input type="date" id="fTo" oninput="onFilterChange()" /></div>
+            <div class="fd-field"><label>Doctor Name</label><input type="text" id="fName" placeholder="Search name..."
+                oninput="onFilterChange()" /></div>
+            <div class="fd-field"><label>Phone / Recipient</label><input type="text" id="fPhone"
+                placeholder="91XXXXXXXXXX" oninput="onFilterChange()" /></div>
+            <div class="fd-field"><label>Message Type</label>
+              <select id="fType" onchange="onFilterChange()">
+                <option value="">All Types</option>
+                <option value="birthday">Birthday</option>
+                <option value="anniversary">Anniversary</option>
+                <option value="clinic_anniversary">Clinic Anniversary</option>
+              </select>
+            </div>
+            <div class="fd-field"><label>Status</label>
+              <select id="fStatus" onchange="onFilterChange()">
+                <option value="">All Status</option>
+                <option value="sent">Sent</option>
+                <option value="delivered">Delivered</option>
+                <option value="read">Read</option>
+                <option value="failed">Failed</option>
+              </select>
+            </div>
+            <div class="fd-field"><label>Template Name</label><input type="text" id="fTemplate"
+                placeholder="Template name..." oninput="onFilterChange()" /></div>
+          </div>
+          <div class="fd-footer">
+            <div class="fd-active-tags" id="activeTags"></div>
+            <button class="btn-reset-all" onclick="resetFilters()">Reset all</button>
+          </div>
+        </div>
+
+        <div class="tbl-card">
+          <div class="tbl-head">
+            <div class="tbl-head-title">Message Records</div>
+            <div class="tbl-meta" id="tblMeta">Loading...</div>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Doctor</th>
+                  <th>Phone</th>
+                  <th>Type</th>
+                  <th>Template</th>
+                  <th>Sent</th>
+                  <th>Delivered</th>
+                  <th>Read</th>
+                  <th>Date</th>
+                  <th>Error Code</th>
+                  <th>Error</th>
+                </tr>
+              </thead>
+              <tbody id="tBody">
+                <tr class="loading-row">
+                  <td colspan="10">
+                    <div class="spin"></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination">
+            <div class="pg-info" id="pgInfo">—</div>
+            <div class="pg-btns" id="pgBtns"></div>
+          </div>
+        </div>
       </div>
 
-      <div class="filter-drawer" id="filterDrawer">
-        <div class="fd-grid">
-          <div class="fd-field"><label>Date From</label><input type="date" id="fFrom" oninput="onFilterChange()"/></div>
-          <div class="fd-field"><label>Date To</label><input type="date" id="fTo" oninput="onFilterChange()"/></div>
-          <div class="fd-field"><label>Doctor Name</label><input type="text" id="fName" placeholder="Search name..." oninput="onFilterChange()"/></div>
-          <div class="fd-field"><label>Phone / Recipient</label><input type="text" id="fPhone" placeholder="91XXXXXXXXXX" oninput="onFilterChange()"/></div>
-          <div class="fd-field"><label>Message Type</label>
-            <select id="fType" onchange="onFilterChange()">
-              <option value="">All Types</option>
-              <option value="birthday">Birthday</option>
-              <option value="anniversary">Anniversary</option>
-              <option value="clinic_anniversary">Clinic Anniversary</option>
-            </select>
+      <!-- USERS PAGE -->
+      <div id="pageUsers" style="display:none">
+        <div class="topbar">
+          <div>
+            <div class="page-title">Users</div>
+            <div class="page-sub">Manage doctors list</div>
           </div>
-          <div class="fd-field"><label>Status</label>
-            <select id="fStatus" onchange="onFilterChange()">
+          <div class="topbar-right">
+            <select id="uYearFilter" class="inline-select" onchange="onUserFilterChange()">
+              <option value="">All Years</option>
+            </select>
+            <select id="uStatusFilter" class="inline-select" onchange="onUserFilterChange()">
               <option value="">All Status</option>
-              <option value="sent">Sent</option>
-              <option value="delivered">Delivered</option>
-              <option value="read">Read</option>
-              <option value="failed">Failed</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
             </select>
+            <input type="text" id="uSearch" class="inline-input" placeholder="Search doctor..."
+              oninput="onUserFilterChange()" />
+            <select id="uBulkAction" class="inline-select">
+              <option value="">Bulk Action</option>
+              <option value="activate">Activate All</option>
+              <option value="deactivate">Deactivate All</option>
+              <option value="make_admin">Make All Admin</option>
+              <option value="remove_admin">Remove All Admin</option>
+            </select>
+            <select id="uDivisionFilter" class="inline-select admin-only">
+              <option value="">All Divisions</option>
+            </select>
+            <button class="btn btn-primary" onclick="applyBulkAction()">
+              Apply
+            </button>
+            <button class="btn btn-xls admin-only" id="btnUploadUsers"
+              onclick="document.getElementById('userUpload').click()">
+              <svg viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Upload Users
+            </button>
+            <input type="file" id="userUpload" accept=".csv,.xlsx,.xls" style="display:none"
+              onchange="handleUserUpload(this)" />
+            <button class="btn btn-primary admin-only" onclick="openModal(null)">
+              <svg viewBox="0 0 24 24">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Add Doctor
+            </button>
           </div>
-          <div class="fd-field"><label>Template Name</label><input type="text" id="fTemplate" placeholder="Template name..." oninput="onFilterChange()"/></div>
         </div>
-        <div class="fd-footer">
-          <div class="fd-active-tags" id="activeTags"></div>
-          <button class="btn-reset-all" onclick="resetFilters()">Reset all</button>
+
+        <div class="kpi-row four">
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon users"><svg viewBox="0 0 24 24">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg></div><span class="kpi-pct neutral">Total</span>
+            </div>
+            <div class="kpi-val" id="ukTotal">—</div>
+            <div class="kpi-lbl">Total Doctors</div>
+            <div class="kpi-bar users"></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon active"><svg viewBox="0 0 24 24">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg></div><span class="kpi-pct up" id="ukActivePct">—</span>
+            </div>
+            <div class="kpi-val" id="ukActive">—</div>
+            <div class="kpi-lbl">Active</div>
+            <div class="kpi-bar active"></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon inactive"><svg viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="15" y1="9" x2="9" y2="15" />
+                  <line x1="9" y1="9" x2="15" y2="15" />
+                </svg></div><span class="kpi-pct down" id="ukInactivePct">—</span>
+            </div>
+            <div class="kpi-val" id="ukInactive">—</div>
+            <div class="kpi-lbl">Inactive</div>
+            <div class="kpi-bar inactive"></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon msgs"><svg viewBox="0 0 24 24">
+                  <line x1="22" y1="2" x2="11" y2="13" />
+                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                </svg></div><span class="kpi-pct neutral" id="ukYear">All</span>
+            </div>
+            <div class="kpi-val" id="ukMsgs">—</div>
+            <div class="kpi-lbl">Messages Sent</div>
+            <div class="kpi-bar msgs"></div>
+          </div>
+        </div>
+
+        <div class="tbl-card">
+          <div class="tbl-head">
+            <div class="tbl-head-title">Doctors List</div>
+            <div class="tbl-meta" id="uTblMeta">Loading...</div>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Clinic</th>
+                  <th>Birthday</th>
+                  <th>Anniversary</th>
+                  <th>Clinic Anniv.</th>
+                  <th>Messages</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="uBody">
+                <tr class="loading-row">
+                  <td colspan="10">
+                    <div class="spin"></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination">
+            <div class="pg-info" id="uPgInfo">—</div>
+            <div class="pg-btns" id="uPgBtns"></div>
+          </div>
         </div>
       </div>
 
-      <div class="tbl-card">
-        <div class="tbl-head"><div class="tbl-head-title">Message Records</div><div class="tbl-meta" id="tblMeta">Loading...</div></div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr><th>ID</th><th>Doctor</th><th>Phone</th><th>Type</th><th>Template</th><th>Status</th><th>Date</th><th>Error Code</th><th>Error</th></tr></thead>
-            <tbody id="tBody"><tr class="loading-row"><td colspan="9"><div class="spin"></div></td></tr></tbody>
-          </table>
-        </div>
-        <div class="pagination"><div class="pg-info" id="pgInfo">—</div><div class="pg-btns" id="pgBtns"></div></div>
-      </div>
-    </div>
-
-    <!-- USERS PAGE -->
-    <div id="pageUsers" style="display:none">
-      <div class="topbar">
-        <div><div class="page-title">Users</div><div class="page-sub">Manage doctors list</div></div>
-        <div class="topbar-right">
-          <select id="uYearFilter" class="inline-select" onchange="onUserFilterChange()">
-            <option value="">All Years</option>
-          </select>
-          <select id="uStatusFilter" class="inline-select" onchange="onUserFilterChange()">
-            <option value="">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-          <input type="text" id="uSearch" class="inline-input" placeholder="Search doctor..." oninput="onUserFilterChange()"/>
-          <select id="uBulkAction" class="inline-select">
-            <option value="">Bulk Action</option>
-            <option value="activate">Activate All</option>
-            <option value="deactivate">Deactivate All</option>
-            <option value="make_admin">Make All Admin</option>
-            <option value="remove_admin">Remove All Admin</option>
-          </select>
-          <select id="uDivisionFilter" class="inline-select admin-only">
-            <option value="">All Divisions</option>
-          </select>
-          <button class="btn btn-primary" onclick="applyBulkAction()">
-            Apply
-          </button>
-          <button class="btn btn-xls admin-only" id="btnUploadUsers" onclick="document.getElementById('userUpload').click()">
-            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Upload Users
-          </button>
-          <input type="file" id="userUpload" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleUserUpload(this)"/>
-          <button class="btn btn-primary admin-only" onclick="openModal(null)">
-            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add Doctor
-          </button>
-        </div>
-      </div>
-
-      <div class="kpi-row four">
-        <div class="kpi"><div class="kpi-top"><div class="kpi-icon users"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><span class="kpi-pct neutral">Total</span></div><div class="kpi-val" id="ukTotal">—</div><div class="kpi-lbl">Total Doctors</div><div class="kpi-bar users"></div></div>
-        <div class="kpi"><div class="kpi-top"><div class="kpi-icon active"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><span class="kpi-pct up" id="ukActivePct">—</span></div><div class="kpi-val" id="ukActive">—</div><div class="kpi-lbl">Active</div><div class="kpi-bar active"></div></div>
-        <div class="kpi"><div class="kpi-top"><div class="kpi-icon inactive"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><span class="kpi-pct down" id="ukInactivePct">—</span></div><div class="kpi-val" id="ukInactive">—</div><div class="kpi-lbl">Inactive</div><div class="kpi-bar inactive"></div></div>
-        <div class="kpi"><div class="kpi-top"><div class="kpi-icon msgs"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div><span class="kpi-pct neutral" id="ukYear">All</span></div><div class="kpi-val" id="ukMsgs">—</div><div class="kpi-lbl">Messages Sent</div><div class="kpi-bar msgs"></div></div>
-      </div>
-
-      <div class="tbl-card">
-        <div class="tbl-head"><div class="tbl-head-title">Doctors List</div><div class="tbl-meta" id="uTblMeta">Loading...</div></div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Clinic</th><th>Birthday</th><th>Anniversary</th><th>Clinic Anniv.</th><th>Messages</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="uBody"><tr class="loading-row"><td colspan="10"><div class="spin"></div></td></tr></tbody>
-          </table>
-        </div>
-        <div class="pagination"><div class="pg-info" id="uPgInfo">—</div><div class="pg-btns" id="uPgBtns"></div></div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- UPLOAD PROGRESS MODAL -->
-<div class="modal-overlay" id="uploadModalOverlay">
-  <div class="modal">
-    <div class="modal-title">
-      <span id="uploadModalTitle">Uploading Users</span>
-      <button class="modal-close" onclick="closeUploadModal()">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="upload-stats">
-        <div class="upload-stat"><div class="upload-stat-val" id="upTotal">0</div><div class="upload-stat-lbl">Total Rows</div></div>
-        <div class="upload-stat"><div class="upload-stat-val" id="upProcessed">0</div><div class="upload-stat-lbl">Processed</div></div>
-        <div class="upload-stat"><div class="upload-stat-val" id="upAdded">0</div><div class="upload-stat-lbl">Added</div></div>
-        <div class="upload-stat"><div class="upload-stat-val" id="upSkipped">0</div><div class="upload-stat-lbl">Skipped</div></div>
-      </div>
-      <div class="progress-wrap">
-        <div class="progress-bar"><div class="progress-fill" id="upProgressFill" style="width:0%"></div></div>
-        <div class="progress-pct" id="upProgressPct">0%</div>
-      </div>
-      <div class="upload-status" id="uploadStatus">Processing...</div>
     </div>
   </div>
-</div>
 
-<!-- ADD/EDIT MODAL -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
-    <div class="modal-title">
-      <span id="modalTitle">Add Doctor</span>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div class="modal-grid">
-      <div class="mfield"><label>Name *</label><input type="text" id="mName" placeholder="Dr. Full Name"/></div>
-      <div class="mfield"><label>Phone *</label><input type="text" id="mPhone" placeholder="10-digit number"/></div>
-      <div class="mfield"><label>Clinic Name</label><input type="text" id="mClinic" placeholder="Clinic name"/></div>
-      <div class="mfield"><label>Birthday</label><input type="date" id="mBirthday"/></div>
-      <div class="mfield"><label>Anniversary</label><input type="date" id="mAnniversary"/></div>
-      <div class="mfield"><label>Clinic Anniversary</label><input type="date" id="mClinicAnniv"/></div>
-      <div class="mfield" style="align-items:flex-end"><label><input type="checkbox" id="mIsDoctor" style="width:auto;height:auto"/> Is Doctor</label></div>
-      <div class="mfield admin-only"><label>Division</label><input type="text" id="mDivision" placeholder="e.g. Ortho, Cardiology"/></div>
-      <div class="mfield admin-only" style="align-items:flex-end"><label><input type="checkbox" id="mIsAdmin" style="width:auto;height:auto"/> Is Admin</label></div>
-      <div class="mfield admin-only"><label>Password</label><input type="text" id="mPassword" placeholder="Default: Digi@2026"/></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveDoctor()">Save</button>
+  <!-- UPLOAD PROGRESS MODAL -->
+  <div class="modal-overlay" id="uploadModalOverlay">
+    <div class="modal">
+      <div class="modal-title">
+        <span id="uploadModalTitle">Uploading Users</span>
+        <button class="modal-close" onclick="closeUploadModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="upload-stats">
+          <div class="upload-stat">
+            <div class="upload-stat-val" id="upTotal">0</div>
+            <div class="upload-stat-lbl">Total Rows</div>
+          </div>
+          <div class="upload-stat">
+            <div class="upload-stat-val" id="upProcessed">0</div>
+            <div class="upload-stat-lbl">Processed</div>
+          </div>
+          <div class="upload-stat">
+            <div class="upload-stat-val" id="upAdded">0</div>
+            <div class="upload-stat-lbl">Added</div>
+          </div>
+          <div class="upload-stat">
+            <div class="upload-stat-val" id="upSkipped">0</div>
+            <div class="upload-stat-lbl">Skipped</div>
+          </div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar">
+            <div class="progress-fill" id="upProgressFill" style="width:0%"></div>
+          </div>
+          <div class="progress-pct" id="upProgressPct">0%</div>
+        </div>
+        <div class="upload-status" id="uploadStatus">Processing...</div>
+      </div>
     </div>
   </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="js/utils.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/dashboard.js"></script>
-<script src="js/messages.js"></script>
-<script src="js/users.js"></script>
+  <!-- ADD/EDIT MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-title">
+        <span id="modalTitle">Add Doctor</span>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-grid">
+        <div class="mfield"><label>Name *</label><input type="text" id="mName" placeholder="Dr. Full Name" /></div>
+        <div class="mfield"><label>Phone *</label><input type="text" id="mPhone" placeholder="10-digit number" /></div>
+        <div class="mfield"><label>Clinic Name</label><input type="text" id="mClinic" placeholder="Clinic name" /></div>
+        <div class="mfield"><label>Birthday</label><input type="date" id="mBirthday" /></div>
+        <div class="mfield"><label>Anniversary</label><input type="date" id="mAnniversary" /></div>
+        <div class="mfield"><label>Clinic Anniversary</label><input type="date" id="mClinicAnniv" /></div>
+        <div class="mfield" style="align-items:flex-end"><label><input type="checkbox" id="mIsDoctor"
+              style="width:auto;height:auto" /> Is Doctor</label></div>
+        <div class="mfield admin-only"><label>Division</label><input type="text" id="mDivision"
+            placeholder="e.g. Ortho, Cardiology" /></div>
+        <div class="mfield admin-only" style="align-items:flex-end"><label><input type="checkbox" id="mIsAdmin"
+              style="width:auto;height:auto" /> Is Admin</label></div>
+        <div class="mfield admin-only"><label>Password</label><input type="text" id="mPassword"
+            placeholder="Default: Digi@2026" /></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveDoctor()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/messages.js"></script>
+  <script src="js/users.js"></script>
 </body>
+
 </html>
