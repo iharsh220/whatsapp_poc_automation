@@ -10,7 +10,7 @@ const BLPOP_TIMEOUT = 10;
 // ── Main Queue ── (FIFO list)
 
 async function pushToQueue(messageData) {
-  const dedupKey = `${messageData.doctorPhone || ''}:${messageData.type || ''}`;
+  const dedupKey = `${messageData.doctorPhone || ''}:${messageData.type || ''}:${messageData.doctorIsDoctor ?? ''}`;
   // Prevent duplicate queue entries from cron double-runs (e.g. server restart)
   const alreadyQueued = await redis.sismember(DEDUP_KEY, dedupKey);
   if (alreadyQueued) {

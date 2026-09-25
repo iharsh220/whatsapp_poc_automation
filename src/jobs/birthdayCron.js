@@ -6,9 +6,27 @@ const { pushToQueue } = require('../services/queueService');
 const { formatPhone } = require('../services/dateUtils');
 
 const MESSAGE_TYPES = [
-  { field: 'birthday', type: 'birthday', template: process.env.BIRTHDAY_TEMPLATE, videoUrl: process.env.BIRTHDAY_URL },
-  { field: 'anniversary', type: 'anniversary', template: process.env.ANNIVERSARY_TEMPLATE, videoUrl: process.env.ANNIVERSARY_URL },
-  { field: 'clinic_anniversary', type: 'clinic_anniversary', template: process.env.CLINIC_ANNIVERSARY_TEMPLATE, videoUrl: process.env.CLINIC_ANNIVERSARY_URL },
+  {
+    field: 'birthday',
+    type: 'birthday',
+    template: process.env.BIRTHDAY_TEMPLATE,
+    videoUrlDoctor: process.env.BIRTHDAY_URL_DOCTOR,
+    videoUrlSales: process.env.BIRTHDAY_URL_SALES,
+  },
+  {
+    field: 'anniversary',
+    type: 'anniversary',
+    template: process.env.ANNIVERSARY_TEMPLATE,
+    videoUrlDoctor: process.env.ANNIVERSARY_URL_DOCTOR,
+    videoUrlSales: process.env.ANNIVERSARY_URL_SALES,
+  },
+  {
+    field: 'clinic_anniversary',
+    type: 'clinic_anniversary',
+    template: process.env.CLINIC_ANNIVERSARY_TEMPLATE,
+    videoUrlDoctor: process.env.CLINIC_ANNIVERSARY_URL_DOCTOR,
+    videoUrlSales: process.env.CLINIC_ANNIVERSARY_URL_SALES,
+  },
 ];
 
 async function checkAndQueueMessages() {
@@ -42,16 +60,21 @@ async function checkAndQueueMessages() {
       if (String(d.getMonth() + 1).padStart(2, '0') !== month ||
         String(d.getDate()).padStart(2, '0') !== day) continue;
 
-      if (!job.template || !job.videoUrl) {
-        console.warn(`[cron] Missing template/videoUrl for ${job.type} — add to .env`);
+      const isDoctor = doctor.is_doctor ? 1 : 0;
+      console.log(isDoctor);
+      const videoUrl = isDoctor ? job.videoUrlDoctor : job.videoUrlSales;
+      console.log(videoUrl);
+      if (!job.template || !videoUrl) {
+        console.warn(`[cron] Missing template/videoUrl for ${job.type} (is_doctor=${isDoctor}) — add to .env`);
         continue;
       }
+
 
       const messageData = {
         to: formatPhone(doctor.phone),
         templateName: job.template,
         bodyParameters: [{ type: 'text', text: doctor.name }],
-        headerParameters: [{ type: 'video', video: { link: job.videoUrl } }],
+        headerParameters: [{ type: 'video', video: { link: videoUrl } }],
         doctorId: doctor.id,
         doctorName: doctor.name,
         doctorPhone: doctor.phone,
@@ -60,14 +83,14 @@ async function checkAndQueueMessages() {
         doctorClinicAnniversary: job.type === 'clinic_anniversary' ? doctor.clinic_anniversary : null,
         doctorClinicName: doctor.clinic_name,
         doctorDivision: doctor.division,
-        doctorIsDoctor: doctor.is_doctor ? 1 : 0,
+        doctorIsDoctor: isDoctor,
         type: job.type,
       };
-
+      // console.log(messageData.headerParameters);
       tasks.push(
         pushToQueue(messageData)
           .then(queued => {
-            if (queued) console.log(`[cron] queued ${job.type} → ${doctor.name} (${doctor.phone})`);
+            if (queued) console.log(`[cron] queued ${job.type} → ${doctor.name} (${doctor.phone}) is_doctor=${isDoctor}`);
             return queued;
           })
           .catch(err => {
