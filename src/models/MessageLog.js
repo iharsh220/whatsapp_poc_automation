@@ -11,7 +11,14 @@ const MessageLog = sequelize.define('MessageLog', {
   doctor_anniversary: { type: DataTypes.DATEONLY },
   doctor_clinic_anniversary: { type: DataTypes.DATEONLY },
   doctor_clinic_name: { type: DataTypes.STRING },
-  message_type: { type: DataTypes.ENUM('birthday', 'anniversary', 'clinic_anniversary', 'enteron_push_notification') },
+  message_type: {
+    type: DataTypes.ENUM(
+      'birthday',
+      'anniversary',
+      'clinic_anniversary',
+      'masterclass_thank_you_msg'
+    )
+  },
   template_name: { type: DataTypes.STRING },
   recipient_id: { type: DataTypes.STRING },
   retry_count: { type: DataTypes.INTEGER, defaultValue: 0 },
@@ -35,7 +42,7 @@ const MessageLog = sequelize.define('MessageLog', {
 });
 
 // Upsert a row by message_id, setting the appropriate timestamp column based on status
-MessageLog.upsertStatus = async function(data) {
+MessageLog.upsertStatus = async function (data) {
   const { message_id, status, timestamp, ...rest } = data;
   if (!message_id) {
     // No message_id — fall back to plain create
@@ -66,16 +73,16 @@ MessageLog.upsertStatus = async function(data) {
 };
 
 // Fallback for older DB schemas missing newer columns
-MessageLog.safeCreate = async function(data) {
+MessageLog.safeCreate = async function (data) {
   try {
     return await this.create(data);
   } catch (err) {
     const msg = err.message || '';
     if (msg.includes('retry_count') || msg.includes('doctor_clinic_name') ||
-        msg.includes('division') || msg.includes('doctor_is_doctor') ||
-        msg.includes('sent_at') || msg.includes('delivered_at') ||
-        msg.includes('read_at') || msg.includes('failed_at') ||
-        msg.includes('status')) {
+      msg.includes('division') || msg.includes('doctor_is_doctor') ||
+      msg.includes('sent_at') || msg.includes('delivered_at') ||
+      msg.includes('read_at') || msg.includes('failed_at') ||
+      msg.includes('status')) {
       const safe = { ...data };
       delete safe.retry_count;
       delete safe.doctor_clinic_name;
