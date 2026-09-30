@@ -36,7 +36,7 @@ function buildFilters() {
 
 const TAG_LABELS = {
   date_from: 'From', date_to: 'To', doctor_name: 'Doctor',
-  recipient_id: 'Phone', message_type: 'Type', status: 'Status', template_name: 'Template',
+  recipient_id: 'Phone', message_type: 'Campaign', status: 'Status', template_name: 'Template',
 };
 
 function renderActiveTags() {
@@ -94,7 +94,7 @@ function renderRows(rows) {
     tbody.innerHTML = '<tr class="empty-row"><td colspan="10">No records found</td></tr>';
     return;
   }
-  const tl = { birthday: 'Birthday', anniversary: 'Anniversary', clinic_anniversary: 'Clinic Anniv.' };
+  const tl = { birthday: 'Birthday', anniversary: 'Anniversary', clinic_anniversary: 'Clinic Anniv.', masterclass_thank_you_msg: 'Masterclass Thank You Msg' };
   tbody.innerHTML = rows.map(r => {
     const sent = r.sent_at ? fmtDate(r.sent_at) : '—';
     const delivered = r.delivered_at ? fmtDate(r.delivered_at) : '—';

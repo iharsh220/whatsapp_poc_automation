@@ -99,7 +99,7 @@ router.get('/stats', auth, async (req, res) => {
       MessageLog.count({ where: { ...where, failed_at: { [Op.ne]: null } } }),
     ]);
 
-    const types = ['birthday', 'anniversary', 'clinic_anniversary'];
+    const types = ['birthday', 'anniversary', 'clinic_anniversary', 'masterclass_thank_you_msg'];
     const byType = {};
     for (const t of types) {
       byType[t] = {

@@ -131,7 +131,7 @@ function renderTimelineChart(data) {
 
 function renderTypeChart(data) {
   const ctx = document.getElementById('chartTypeDist').getContext('2d');
-  const typeLabels = { birthday: 'Birthday', anniversary: 'Anniversary', clinic_anniversary: 'Clinic Anniv.' };
+  const typeLabels = { birthday: 'Birthday', anniversary: 'Anniversary', clinic_anniversary: 'Clinic Anniv.', masterclass_thank_you_msg: 'Masterclass Thank You Msg' };
   const labels = data.map(r => typeLabels[r.message_type] || r.message_type);
   const counts = data.map(r => r.count || 0);
 

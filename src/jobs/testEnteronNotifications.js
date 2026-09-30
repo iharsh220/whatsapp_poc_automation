@@ -4,7 +4,7 @@ const { formatPhone } = require('../services/dateUtils');
 
 const TEMPLATE_NAME = 'digilabs_enteron_push_notification';
 const IMAGE_URL = 'https://alembicdigilabs.in/images/download/Master_class_Flyer.png';
-const MESSAGE_TYPE = 'enteron_push_notification';
+const MESSAGE_TYPE = 'masterclass_thank_you_msg';
 
 const TEST_NUMBERS = [
   { name: 'Test Doctor 1', contact: '+918080302041', division: 'Test' },
