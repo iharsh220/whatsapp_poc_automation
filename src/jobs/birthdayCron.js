@@ -85,6 +85,7 @@ async function checkAndQueueMessages() {
         doctorDivision: doctor.division,
         doctorIsDoctor: isDoctor,
         type: job.type,
+        project_type: "doctors_automation"
       };
       // console.log(messageData.headerParameters);
       tasks.push(
