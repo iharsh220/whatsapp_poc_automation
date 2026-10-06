@@ -85,7 +85,6 @@ async function checkAndQueueMessages() {
         doctorDivision: doctor.division,
         doctorIsDoctor: isDoctor,
         type: job.type,
-        project_type: "doctors_automation"
       };
       // console.log(messageData.headerParameters);
       tasks.push(
@@ -111,15 +110,15 @@ async function checkAndQueueMessages() {
 }
 
 async function startCron() {
-  cron.schedule('0 9 * * *', async () => {
-    console.log('[cron] running daily job...');
-    try {
-      await checkAndQueueMessages();
-    } catch (err) {
-      console.error('[cron] error:', err.message);
-    }
-  }, { timezone: 'Asia/Kolkata' });
-  // await checkAndQueueMessages();
+  // cron.schedule('0 9 * * *', async () => {
+  //   console.log('[cron] running daily job...');
+  //   try {
+  //     await checkAndQueueMessages();
+  //   } catch (err) {
+  //     console.error('[cron] error:', err.message);
+  //   }
+  // }, { timezone: 'Asia/Kolkata' });
+  await checkAndQueueMessages();
   console.log('[cron] scheduled: daily at 9:00 AM IST');
 }
 

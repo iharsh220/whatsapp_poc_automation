@@ -76,6 +76,7 @@ async function sendEnteronNotifications() {
         t: TEMPLATE_NAME,
         ty: MESSAGE_TYPE,
         ts: new Date().toISOString(),
+        project_type: "doctors_automation"
       };
 
       try {

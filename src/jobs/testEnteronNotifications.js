@@ -22,7 +22,7 @@ async function sendTestNotifications() {
       continue;
     }
 
-    const callbackMeta = {
+     const callbackMeta = {
       did: 0,
       d: doctor.name,
       dp: doctor.contact,
@@ -30,6 +30,7 @@ async function sendTestNotifications() {
       t: TEMPLATE_NAME,
       ty: MESSAGE_TYPE,
       ts: new Date().toISOString(),
+      project_type: 'doctors_automation'
     };
 
     try {

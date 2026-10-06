@@ -37,11 +37,17 @@ router.post('/status_callback', async (req, res) => {
   res.status(200).json({ status: 'received' });
 
   const statuses = req.body.statuses || [];
-
+  console.log(statuses);
   for (const s of statuses) {
     try {
       let cb = {};
       try { cb = JSON.parse(s.custom_callback_data || '{}'); } catch { }
+
+      // Only process callbacks for project_type "doctors_automation"
+      if (cb.pt !== 'doctors_automation' && cb.project_type !== 'doctors_automation') {
+        console.log(`[webhook] skipping — project_type not doctors_automation for ${s.recipient_id}`);
+        continue;
+      }
 
       const meta = expandMeta(cb);
       const firstError = s.errors?.[0] || {};
