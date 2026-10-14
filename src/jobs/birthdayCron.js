@@ -61,14 +61,11 @@ async function checkAndQueueMessages() {
         String(d.getDate()).padStart(2, '0') !== day) continue;
 
       const isDoctor = doctor.is_doctor ? 1 : 0;
-      console.log(isDoctor);
       const videoUrl = isDoctor ? job.videoUrlDoctor : job.videoUrlSales;
-      console.log(videoUrl);
       if (!job.template || !videoUrl) {
         console.warn(`[cron] Missing template/videoUrl for ${job.type} (is_doctor=${isDoctor}) — add to .env`);
         continue;
       }
-
 
       const messageData = {
         to: formatPhone(doctor.phone),
@@ -86,7 +83,7 @@ async function checkAndQueueMessages() {
         doctorIsDoctor: isDoctor,
         type: job.type,
       };
-      // console.log(messageData.headerParameters);
+      console.log(JSON.stringify(messageData));
       tasks.push(
         pushToQueue(messageData)
           .then(queued => {

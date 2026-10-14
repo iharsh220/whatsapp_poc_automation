@@ -38,7 +38,7 @@ async function processMessage(message) {
     const apiResponse = await sendWhatsAppMessage(to, templateName, bodyParameters, headerParameters, callbackMeta);
     const messageId = getMessageId(apiResponse);
     const label = retryCount > 0 ? `retry-${retryCount}` : 'sent';
-    console.log(`[${label}] ${type} → ${to} (${doctorName}) | webhook_message_id:${messageId || 'missing'}`);
+     console.log(`[${label}] ${type} → ${to} (${doctorName}) | template:${templateName} | webhook_message_id:${messageId || 'missing'}`);
   } catch (err) {
     const status = err.response?.status || 'N/A';
     const errData = err.response?.data;
@@ -47,8 +47,8 @@ async function processMessage(message) {
     const errDetail = firstError.title || firstError.message || err.message;
 
     console.error(`[send-error] ${to} (${doctorName}) attempt:${retryCount + 1} http:${status} code:${errorCode} - ${errDetail}`);
-    if (errData && !errData.errors) {
-      console.error(`[send-error-details] ${JSON.stringify(errData).slice(0, 500)}`);
+    if (errData) {
+      console.error(`[send-error-response] ${JSON.stringify(errData).slice(0, 1000)}`);
     }
   }
 }

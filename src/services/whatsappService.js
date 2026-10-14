@@ -22,11 +22,25 @@ function getMessageId(responseData) {
 }
 
 async function sendWhatsAppMessage(to, templateName, bodyParameters = [], headerParameters = [], callbackMeta = {}) {
+  // WhatsApp Cloud API standard format for template messages
   const components = [];
-  if (headerParameters.length > 0) components.push({ type: 'header', parameters: headerParameters });
-  if (bodyParameters.length > 0) components.push({ type: 'body', parameters: bodyParameters });
+
+  if (headerParameters && headerParameters.length > 0) {
+    components.push({
+      type: 'header',
+      parameters: headerParameters,
+    });
+  }
+
+  if (bodyParameters && bodyParameters.length > 0) {
+    components.push({
+      type: 'body',
+      parameters: bodyParameters,
+    });
+  }
 
   const payload = {
+    messaging_product: 'whatsapp',
     to,
     type: 'template',
     source: 'external',
