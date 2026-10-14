@@ -27,11 +27,11 @@ async function processMessage(message) {
     dcn: doctorClinicName,
     div: doctorDivision,
     did2: doctorIsDoctor,
-     t: templateName,
+    t: templateName,
     ty: type,
     rc: retryCount,
     ts: triggeredAt,
-    pt: 'doctors_automation'
+    pt: 'doctors_automation',
   };
 
   try {
